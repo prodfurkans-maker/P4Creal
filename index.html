@@ -3,7 +3,7 @@
 <html lang="tr">
   <head>
     <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0" />
     <title>NextGenLAB | Geleceğin Eğitimi</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -17,6 +17,8 @@
         overflow: hidden;
         -webkit-font-smoothing: antialiased;
         -moz-osx-font-smoothing: grayscale;
+        /* Mobil safari zoom engelleme için gerekli */
+        touch-action: manipulation;
       }
       ::-webkit-scrollbar {
         width: 4px;
@@ -32,16 +34,22 @@
       .mesh-bg {
         background-color: #f8fafc;
         background-image: 
-          radial-gradient(at 0% 0%, rgba(99, 102, 241, 0.03) 0px, transparent 50%),
-          radial-gradient(at 100% 0%, rgba(59, 130, 246, 0.03) 0px, transparent 50%),
-          radial-gradient(at 100% 100%, rgba(99, 102, 241, 0.03) 0px, transparent 50%),
-          radial-gradient(at 0% 100%, rgba(59, 130, 246, 0.03) 0px, transparent 50%);
+          radial-gradient(at 0% 0%, rgba(99, 102, 241, 0.04) 0px, transparent 50%),
+          radial-gradient(at 100% 0%, rgba(59, 130, 246, 0.04) 0px, transparent 50%),
+          radial-gradient(at 100% 100%, rgba(99, 102, 241, 0.04) 0px, transparent 50%),
+          radial-gradient(at 0% 100%, rgba(59, 130, 246, 0.04) 0px, transparent 50%);
       }
 
       .logo-container {
-        background: rgba(255, 255, 255, 0.6);
-        backdrop-filter: blur(8px);
-        border: 1px solid rgba(226, 232, 240, 0.8);
+        background: rgba(255, 255, 255, 0.7);
+        backdrop-filter: blur(12px);
+        border: 1px solid rgba(226, 232, 240, 0.9);
+        box-shadow: 0 10px 30px -10px rgba(0,0,0,0.05);
+      }
+
+      /* iOS input focus zoom engelleme garantisi */
+      input, textarea {
+        font-size: 16px !important;
       }
     </style>
     <script type="importmap">
