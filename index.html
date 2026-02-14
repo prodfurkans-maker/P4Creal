@@ -3,53 +3,61 @@
 <html lang="tr">
   <head>
     <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0, viewport-fit=cover" />
     <title>NextGenLAB | Geleceğin Eğitimi</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&display=swap" rel="stylesheet">
     <style>
+      :root {
+        --app-height: 100%;
+      }
+      html, body {
+        padding: 0;
+        margin: 0;
+        width: 100%;
+        height: 100%;
+        height: -webkit-fill-available;
+        overflow: hidden;
+        position: fixed;
+      }
       body {
         font-family: 'Inter', sans-serif;
         background-color: #ffffff;
-        margin: 0;
-        overflow: hidden;
         -webkit-font-smoothing: antialiased;
         -moz-osx-font-smoothing: grayscale;
-        /* Mobil safari zoom engelleme için gerekli */
-        touch-action: manipulation;
+        touch-action: pan-x pan-y;
       }
-      ::-webkit-scrollbar {
-        width: 4px;
+      #root {
+        height: 100%;
+        display: flex;
+        flex-direction: column;
       }
-      ::-webkit-scrollbar-track {
-        background: transparent;
-      }
-      ::-webkit-scrollbar-thumb {
-        background: #e2e8f0;
-        border-radius: 10px;
-      }
-      
       .mesh-bg {
-        background-color: #f8fafc;
+        background-color: #fcfdfe;
         background-image: 
-          radial-gradient(at 0% 0%, rgba(99, 102, 241, 0.04) 0px, transparent 50%),
-          radial-gradient(at 100% 0%, rgba(59, 130, 246, 0.04) 0px, transparent 50%),
-          radial-gradient(at 100% 100%, rgba(99, 102, 241, 0.04) 0px, transparent 50%),
-          radial-gradient(at 0% 100%, rgba(59, 130, 246, 0.04) 0px, transparent 50%);
+          radial-gradient(at 0% 0%, rgba(99, 102, 241, 0.05) 0px, transparent 50%),
+          radial-gradient(at 100% 0%, rgba(59, 130, 246, 0.05) 0px, transparent 50%),
+          radial-gradient(at 100% 100%, rgba(99, 102, 241, 0.05) 0px, transparent 50%),
+          radial-gradient(at 0% 100%, rgba(59, 130, 246, 0.05) 0px, transparent 50%);
       }
-
+      /* iOS input focus zoom engelleme garantisi */
+      input, textarea, select {
+        font-size: 16px !important;
+      }
+      .no-scrollbar::-webkit-scrollbar {
+        display: none;
+      }
+      .no-scrollbar {
+        -ms-overflow-style: none;
+        scrollbar-width: none;
+      }
       .logo-container {
         background: rgba(255, 255, 255, 0.7);
-        backdrop-filter: blur(12px);
-        border: 1px solid rgba(226, 232, 240, 0.9);
-        box-shadow: 0 10px 30px -10px rgba(0,0,0,0.05);
-      }
-
-      /* iOS input focus zoom engelleme garantisi */
-      input, textarea {
-        font-size: 16px !important;
+        backdrop-filter: blur(16px);
+        border: 1px solid rgba(226, 232, 240, 0.8);
+        box-shadow: 0 20px 40px -20px rgba(0,0,0,0.08);
       }
     </style>
     <script type="importmap">
@@ -68,5 +76,12 @@
   <body>
     <div id="root"></div>
     <script type="module" src="./index.tsx"></script>
+    <script>
+      const updateHeight = () => {
+        document.documentElement.style.setProperty('--app-height', `${window.innerHeight}px`);
+      };
+      window.addEventListener('resize', updateHeight);
+      updateHeight();
+    </script>
   </body>
 </html>
