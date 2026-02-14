@@ -20,7 +20,7 @@ Kısıtlamalar:
 export const getEmpathyResponse = async (userMessage: string): Promise<GeminiResponse> => {
   // API anahtarı process.env.API_KEY üzerinden alınır. 
   // Vercel'de "API_KEY" olarak tanımladığınız değişken buraya otomatik yansır.
-  const apiKey = process.env.API_KEY;
+  const apiKey = import.meta.env.VITE_API_KEY;
   
   if (!apiKey) {
     throw new Error("API_KEY_MISSING");
