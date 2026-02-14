@@ -3,38 +3,42 @@ import React from 'react';
 
 const Sidebar: React.FC = () => {
   return (
-    <aside className="hidden lg:flex flex-col w-72 bg-slate-900 text-slate-300 p-6 border-r border-slate-800">
-      <div className="flex items-center gap-3 mb-10">
-        <div className="w-10 h-10 bg-indigo-500 rounded-xl flex items-center justify-center text-white font-bold shadow-lg shadow-indigo-500/20">
+    <aside className="hidden lg:flex flex-col w-80 bg-slate-900 text-white p-8 border-r border-slate-800 shadow-2xl">
+      <div className="flex items-center gap-4 mb-12">
+        <div className="w-12 h-12 bg-indigo-500 rounded-2xl flex items-center justify-center text-white font-black text-xl shadow-lg shadow-indigo-500/30">
           NG
         </div>
         <div>
-          <h1 className="text-white font-bold leading-none">Next Gen Lab</h1>
-          <p className="text-[10px] text-slate-500 uppercase tracking-widest mt-1">Empati AI v2.0</p>
+          <h1 className="text-lg font-black tracking-tight leading-none">Next Gen Lab</h1>
+          <p className="text-[10px] text-slate-500 font-bold uppercase tracking-widest mt-1">P4C Edition</p>
         </div>
       </div>
 
-      <nav className="flex-1 space-y-6">
-        <div>
-          <h3 className="text-xs font-semibold text-slate-500 uppercase tracking-wider mb-3">Hakkında</h3>
-          <p className="text-sm leading-relaxed text-slate-400">
-            P4C Edition, çocukların duygularını felsefi bir derinlikle keşfetmeleri için tasarlanmıştır.
+      <div className="flex-1 space-y-10">
+        <div className="space-y-4">
+          <label className="text-[10px] font-black text-slate-500 uppercase tracking-widest">Vizyonumuz</label>
+          <p className="text-sm leading-relaxed text-slate-400 font-medium">
+            Çocukların duygusal zekasını felsefi sorgulama (P4C) ile birleştirerek yarının dünyasına hazırlıyoruz.
           </p>
         </div>
 
-        <div className="p-4 bg-indigo-500/10 rounded-2xl border border-indigo-500/20">
-          <p className="text-xs text-indigo-300 leading-relaxed italic">
-            "Sorgulanmamış bir hayat, yaşanmaya değer değildir." 
-            <span className="block mt-1 font-bold">— Sokrates</span>
+        <div className="p-6 bg-slate-800/50 rounded-[2rem] border border-slate-700/50 space-y-3">
+          <span className="text-2xl">🏛️</span>
+          <p className="text-xs text-slate-300 leading-relaxed italic font-medium">
+            "Sorgulanmamış bir hayat, yaşanmaya değer değildir."
+            <span className="block mt-2 font-black text-indigo-400">— Sokrates</span>
           </p>
         </div>
-      </nav>
+      </div>
 
-      <div className="mt-auto pt-6 border-t border-slate-800">
-        <div className="flex items-center gap-2 text-xs">
-          <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse"></div>
-          Sınıf Modu Aktif
+      <div className="mt-auto pt-8 border-t border-slate-800 space-y-4">
+        <div className="flex items-center gap-3">
+          <div className="w-3 h-3 bg-emerald-500 rounded-full animate-pulse shadow-lg shadow-emerald-500/50"></div>
+          <span className="text-[10px] font-black uppercase tracking-widest text-slate-400">Güvenli Mod Aktif</span>
         </div>
+        <p className="text-[9px] text-slate-600 font-bold leading-tight uppercase tracking-tighter">
+          © 2024 Next Gen Lab <br/> Tüm Hakları Saklıdır
+        </p>
       </div>
     </aside>
   );

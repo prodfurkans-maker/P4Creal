@@ -1,6 +1,6 @@
 
 import { GoogleGenAI, Type } from "@google/genai";
-import { GeminiResponse } from "../types";
+import { GeminiResponse } from "../types.ts";
 
 const SYSTEM_INSTRUCTION = `
 Sen 10-14 yaş çocuklara yönelik, P4C (Çocuklar için Felsefe) temelli bir empati asistanısın.
@@ -19,9 +19,11 @@ Kısıtlamalar:
 `;
 
 export const getEmpathyResponse = async (userMessage: string): Promise<GeminiResponse> => {
-  const apiKey = process.env.API_KEY;
+  // process nesnesinin varlığını güvenli bir şekilde kontrol et
+  const apiKey = (window as any).process?.env?.API_KEY || (typeof process !== 'undefined' ? process.env.API_KEY : undefined);
+  
   if (!apiKey) {
-    throw new Error("API yapılandırması hatalı.");
+    throw new Error("API Anahtarı bulunamadı. Lütfen Vercel ayarlarından API_KEY ekleyin.");
   }
 
   const ai = new GoogleGenAI({ apiKey });
@@ -45,9 +47,12 @@ export const getEmpathyResponse = async (userMessage: string): Promise<GeminiRes
       },
     });
 
-    return JSON.parse(response.text.trim());
+    const text = response.text;
+    if (!text) throw new Error("API boş cevap döndürdü.");
+    
+    return JSON.parse(text.trim());
   } catch (error) {
     console.error("Gemini Error:", error);
-    throw new Error("Şu an bağlantı kurulamıyor, lütfen tekrar dene.");
+    throw error;
   }
 };
