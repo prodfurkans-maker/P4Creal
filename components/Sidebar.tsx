@@ -1,48 +1,77 @@
 
 import React from 'react';
+import { ChatSession } from '../types';
 
-const Sidebar: React.FC = () => {
-  const isKeyActive = !!process.env.API_KEY;
+interface SidebarProps {
+  sessions: ChatSession[];
+  activeSessionId: string | null;
+  onSelectSession: (id: string) => void;
+  onNewChat: () => void;
+  onDeleteSession: (e: React.MouseEvent, id: string) => void;
+}
+
+const Sidebar: React.FC<SidebarProps> = ({ 
+  sessions, 
+  activeSessionId, 
+  onSelectSession, 
+  onNewChat,
+  onDeleteSession
+}) => {
+  const LOGO_URL = "https://lh3.googleusercontent.com/d/1iuS4shzoEIy9xsMHhm7AUyMKmuZ9WCgp";
 
   return (
-    <aside className="hidden lg:flex flex-col w-80 bg-slate-900 text-white p-8 border-r border-slate-800 shadow-2xl">
-      <div className="flex items-center gap-4 mb-12">
-        <div className="w-12 h-12 bg-indigo-500 rounded-2xl flex items-center justify-center text-white font-black text-xl shadow-lg shadow-indigo-500/30">
-          NG
-        </div>
-        <div>
-          <h1 className="text-lg font-black tracking-tight leading-none">Next Gen Lab</h1>
-          <p className="text-[10px] text-slate-500 font-bold uppercase tracking-widest mt-1">P4C Edition</p>
-        </div>
+    <aside className="flex flex-col w-full h-full bg-slate-950 text-white border-r border-slate-800 shadow-2xl">
+      <div className="p-4">
+        <button 
+          onClick={onNewChat}
+          className="w-full flex items-center justify-between p-3 bg-white/5 hover:bg-white/10 border border-white/10 rounded-xl transition-all text-sm font-bold group"
+        >
+          <div className="flex items-center gap-2">
+            <img src={LOGO_URL} alt="Logo" className="w-5 h-5 object-contain" />
+            <span>Yeni Sohbet</span>
+          </div>
+          <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" className="opacity-50 group-hover:opacity-100"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
+        </button>
       </div>
 
-      <div className="flex-1 space-y-10">
-        <div className="space-y-4">
-          <label className="text-[10px] font-black text-slate-500 uppercase tracking-widest">Vizyonumuz</label>
-          <p className="text-sm leading-relaxed text-slate-400 font-medium">
-            Çocukların duygusal zekasını felsefi sorgulama (P4C) ile birleştirerek yarının dünyasına hazırlıyoruz.
-          </p>
+      <div className="flex-1 overflow-y-auto px-3 space-y-1 pb-4">
+        <div className="mt-4 mb-2 px-3">
+          <label className="text-[10px] font-black text-slate-500 uppercase tracking-[0.2em]">Geçmiş</label>
         </div>
+        
+        {sessions.length === 0 && (
+          <p className="px-3 py-2 text-xs text-slate-500 font-medium italic">Henüz sohbet yok.</p>
+        )}
 
-        <div className="p-6 bg-slate-800/50 rounded-[2rem] border border-slate-700/50 space-y-3">
-          <span className="text-2xl">🏛️</span>
-          <p className="text-xs text-slate-300 leading-relaxed italic font-medium">
-            "Sorgulanmamış bir hayat, yaşanmaya değer değildir."
-            <span className="block mt-2 font-black text-indigo-400">— Sokrates</span>
-          </p>
-        </div>
+        {sessions.map((session) => (
+          <div 
+            key={session.id}
+            onClick={() => onSelectSession(session.id)}
+            className={`group relative flex items-center gap-3 p-3 rounded-xl cursor-pointer transition-all ${
+              activeSessionId === session.id 
+              ? 'bg-white/10 text-white' 
+              : 'hover:bg-white/5 text-slate-400'
+            }`}
+          >
+            <span className="text-xs truncate flex-1 font-semibold">{session.title}</span>
+            <button 
+              onClick={(e) => onDeleteSession(e, session.id)}
+              className="opacity-0 group-hover:opacity-100 hover:text-rose-400 transition-all p-1"
+            >
+              <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path></svg>
+            </button>
+          </div>
+        ))}
       </div>
 
-      <div className="mt-auto pt-8 border-t border-slate-800 space-y-4">
-        <div className="flex items-center gap-3">
-          <div className={`w-3 h-3 rounded-full animate-pulse shadow-lg ${isKeyActive ? 'bg-emerald-500 shadow-emerald-500/50' : 'bg-amber-500 shadow-amber-500/50'}`}></div>
-          <span className="text-[10px] font-black uppercase tracking-widest text-slate-400">
-            {isKeyActive ? 'Sistem Aktif' : 'Kurulum Bekleniyor'}
-          </span>
+      <div className="p-4 border-t border-white/5 space-y-3">
+        <div className="flex items-center gap-3 px-1">
+          <div className="w-8 h-8 rounded-full bg-indigo-600 flex items-center justify-center font-bold text-xs">NG</div>
+          <div className="flex-1 min-w-0">
+            <p className="text-xs font-bold truncate">Genç Kaşif</p>
+            <p className="text-[9px] text-slate-500 font-black uppercase tracking-widest">Premium Plan</p>
+          </div>
         </div>
-        <p className="text-[9px] text-slate-600 font-bold leading-tight uppercase tracking-tighter">
-          © 2024 Next Gen Lab <br/> Tüm Hakları Saklıdır
-        </p>
       </div>
     </aside>
   );

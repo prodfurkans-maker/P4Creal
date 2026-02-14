@@ -1,10 +1,9 @@
 
-// Enum representing the available emotional states for selection
 export enum Emotion {
   SAD = 'Üzgün',
   ANGRY = 'Öfkeli',
   LONELY = 'Yalnız',
-  CONFUSED = 'Kafası Karışık'
+  CONFUSED = 'Kafası Karışık',
 }
 
 export interface GeminiResponse {
@@ -19,4 +18,11 @@ export interface Message {
   content: string;
   timestamp: number;
   data?: GeminiResponse;
+}
+
+export interface ChatSession {
+  id: string;
+  title: string;
+  messages: Message[];
+  createdAt: number;
 }
