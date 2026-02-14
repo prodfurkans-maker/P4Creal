@@ -18,13 +18,19 @@ Kısıtlamalar:
 `;
 
 export const getEmpathyResponse = async (userMessage: string): Promise<GeminiResponse> => {
-  // process.env.API_KEY'i doğrudan kullanıyoruz, GoogleGenAI bunu bekler.
-  // Eğer undefined ise constructor hata fırlatacaktır.
-  const ai = new GoogleGenAI({ apiKey: process.env.API_KEY || '' });
+  // API anahtarı process.env.API_KEY üzerinden alınır. 
+  // Vercel'de "API_KEY" olarak tanımladığınız değişken buraya otomatik yansır.
+  const apiKey = process.env.API_KEY;
+  
+  if (!apiKey) {
+    throw new Error("API_KEY_MISSING");
+  }
+
+  const ai = new GoogleGenAI({ apiKey });
   
   try {
     const response = await ai.models.generateContent({
-      model: "gemini-3-pro-preview", // Empathy ve P4C için daha derin reasoning sağlar
+      model: "gemini-3-flash-preview",
       contents: userMessage,
       config: {
         systemInstruction: SYSTEM_INSTRUCTION,
@@ -46,9 +52,7 @@ export const getEmpathyResponse = async (userMessage: string): Promise<GeminiRes
     
     return JSON.parse(text.trim());
   } catch (error: any) {
-    if (error.message?.includes("API_KEY_INVALID") || error.message?.includes("403")) {
-      throw new Error("API_KEY_MISSING");
-    }
+    console.error("Gemini Error:", error);
     throw error;
   }
 };

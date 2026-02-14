@@ -9,28 +9,7 @@ const App: React.FC = () => {
   const [input, setInput] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [hasApiKey, setHasApiKey] = useState<boolean>(!!process.env.API_KEY);
   const scrollRef = useRef<HTMLDivElement>(null);
-
-  // API Key kontrolü
-  useEffect(() => {
-    const checkKey = async () => {
-      if (!process.env.API_KEY && window.aistudio) {
-        const selected = await window.aistudio.hasSelectedApiKey();
-        setHasApiKey(selected);
-      }
-    };
-    checkKey();
-  }, []);
-
-  const handleOpenKeySelector = async () => {
-    if (window.aistudio) {
-      await window.aistudio.openSelectKey();
-      setHasApiKey(true); // Race condition için direkt true varsayıyoruz
-    } else {
-      setError("Bu ortamda API Key seçici desteklenmiyor. Lütfen Vercel ayarlarını kontrol edin.");
-    }
-  };
 
   useEffect(() => {
     if (scrollRef.current) {
@@ -66,45 +45,23 @@ const App: React.FC = () => {
       setMessages(prev => [...prev, aiMsg]);
     } catch (err: any) {
       console.error("Chat Error:", err);
-      let errorMessage = "Bir sorun oluştu.";
+      let errorMessage = "Bir sorun oluştu. Lütfen API anahtarınızın Vercel'de API_KEY olarak tanımlandığından emin olun.";
       
-      if (err.message?.includes("Requested entity was not found") || err.message === "API_KEY_MISSING") {
-        setHasApiKey(false);
-        errorMessage = "API Bağlantısı kesildi. Lütfen tekrar yetkilendirin.";
+      if (err.message === "API_KEY_MISSING") {
+        errorMessage = "Sistem yapılandırma hatası: API_KEY bulunamadı.";
       }
 
       setError(errorMessage);
       setMessages(prev => [...prev, {
         id: Date.now().toString(),
         role: 'assistant',
-        content: `Sistem Uyarısı: ${errorMessage}`,
+        content: `Hata: ${errorMessage}`,
         timestamp: Date.now()
       }]);
     } finally {
       setIsLoading(false);
     }
   };
-
-  if (!hasApiKey && !process.env.API_KEY) {
-    return (
-      <div className="flex flex-col items-center justify-center min-h-screen bg-slate-50 p-6 text-center">
-        <div className="w-20 h-20 bg-indigo-600 rounded-3xl flex items-center justify-center text-white text-3xl font-bold mb-8 shadow-2xl">NG</div>
-        <h1 className="text-3xl font-black text-slate-900 mb-4 tracking-tight">Next Gen Lab P4C Asistanı</h1>
-        <p className="text-slate-500 max-w-md mb-8 leading-relaxed">
-          Güvenli ve felsefi bir sohbet deneyimi için Gemini API bağlantısını kurmamız gerekiyor.
-        </p>
-        <button 
-          onClick={handleOpenKeySelector}
-          className="bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-4 px-10 rounded-2xl shadow-xl shadow-indigo-200 transition-all active:scale-95"
-        >
-          API Anahtarını Etkinleştir
-        </button>
-        <a href="https://ai.google.dev/gemini-api/docs/billing" target="_blank" className="mt-6 text-xs text-slate-400 hover:underline">
-          Faturalandırma Hakkında Bilgi
-        </a>
-      </div>
-    );
-  }
 
   return (
     <div className="flex h-screen bg-white overflow-hidden text-slate-900 font-sans">
@@ -126,10 +83,10 @@ const App: React.FC = () => {
               </div>
               <div className="space-y-4">
                 <h2 className="text-3xl md:text-5xl font-black text-slate-900 tracking-tight leading-tight">
-                  Düşüncelerine <br/> <span className="text-indigo-600">Felsefi Bir Pencere Aç</span>
+                  Sokratik Sohbet <br/> <span className="text-indigo-600">Asistanı</span>
                 </h2>
-                <p className="text-slate-500 text-lg md:text-xl font-medium">
-                  Bugün seni meşgul eden bir konuyu veya duyguyu paylaşabilirsin.
+                <p className="text-slate-500 text-lg md:text-xl font-medium leading-relaxed">
+                  Düşüncelerini buraya dökebilirsin. Seninle birlikte sorgulamak için buradayım.
                 </p>
               </div>
             </div>
@@ -154,7 +111,7 @@ const App: React.FC = () => {
                         </div>
                         <div>
                           <label className="text-[10px] font-black text-emerald-500 uppercase tracking-[0.2em] block mb-2">Felsefi Perspektif</label>
-                          <p className="text-base leading-relaxed text-slate-600">{msg.data.suggestion}</p>
+                          <p className="text-base leading-relaxed text-slate-600 font-medium">{msg.data.suggestion}</p>
                         </div>
                         <div className="p-6 bg-white border-2 border-indigo-100 rounded-3xl shadow-sm">
                           <label className="text-[10px] font-black text-indigo-600 uppercase tracking-[0.2em] block mb-2">P4C Soru Kartı</label>
@@ -178,7 +135,7 @@ const App: React.FC = () => {
                   <div className="w-2 h-2 bg-indigo-400 rounded-full animate-bounce delay-100"></div>
                   <div className="w-2 h-2 bg-indigo-400 rounded-full animate-bounce delay-200"></div>
                 </div>
-                <span className="text-sm font-bold text-slate-400 uppercase tracking-widest">Sorgulanıyor...</span>
+                <span className="text-sm font-bold text-slate-400 uppercase tracking-widest">Düşünülüyor...</span>
               </div>
             </div>
           )}
@@ -191,7 +148,7 @@ const App: React.FC = () => {
                 value={input}
                 onChange={(e) => setInput(e.target.value)}
                 onKeyDown={(e) => { if(e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); handleSend(); } }}
-                placeholder="Düşüncelerini buraya yaz..."
+                placeholder="Neler düşünüyorsun?"
                 className="w-full p-6 md:p-8 pr-20 bg-white border-2 border-slate-100 rounded-[2.5rem] focus:border-indigo-400 focus:ring-0 transition-all shadow-2xl shadow-indigo-100/50 resize-none max-h-48 min-h-[90px] text-lg font-medium text-slate-800"
                 rows={1}
               />
@@ -208,7 +165,7 @@ const App: React.FC = () => {
               </button>
             </div>
             <p className="text-center text-[10px] text-slate-400 font-bold uppercase tracking-[0.2em]">
-              Next Gen Lab P4C Asistanı • Terapötik Destek Değildir
+              Next Gen Lab P4C Asistanı • Sokratik Diyalog Aracı
             </p>
           </div>
         </div>
