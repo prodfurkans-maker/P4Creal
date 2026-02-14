@@ -10,7 +10,7 @@ GÜVENLİK VE MODERASYON KURALLARI:
 1. DİNİ, SİYASİ veya CİNSEL İÇERİKLİ herhangi bir kelime, soru veya ima gelirse:
    - "empathy" alanına KESİNLİKLE sadece şu cümleyi yaz: "Bu konu hakkında konuşamayız."
    - "suggestion" alanına: "NextGenLAB olarak bizler, felsefe, bilim ve empati yolculuğunda seninle birlikteyiz. Zihnini daha geniş ufuklara açmaya ne dersin?" yaz.
-   - "question" alanına ise konuyla tamamen bağımsız, felsefi derinliği olan yaratıcı bir P4C sorusu sor. (Örneğin adalet, zaman, bilgi veya sanat üzerine).
+   - "question" alanına ise konuyla tamamen bağımsız, felsefi derinliği olan yaratıcı bir P4C sorusu sor.
 
 NORMAL SÜREÇ (JSON FORMATI):
 - "empathy": Kullanıcının duygusunu kurumsal bir nezaketle anladığını belirten 1 cümle.
@@ -18,9 +18,8 @@ NORMAL SÜREÇ (JSON FORMATI):
 - "question": Çocuğun eleştirel düşünmesini sağlayacak kaliteli 1 adet P4C sorusu.
 
 Teknik Kısıtlamalar:
-- Sadece Türkçe.
+- Sadece Türkçe konuş.
 - Sadece saf JSON çıktısı üret.
-- Çocuk güvenliğini en üstte tut.
 `;
 
 export const getEmpathyResponse = async (userMessage: string): Promise<GeminiResponse> => {
@@ -59,10 +58,12 @@ export const generateTitle = async (message: string): Promise<string> => {
   try {
     const response = await ai.models.generateContent({
       model: "gemini-3-flash-preview",
-      contents: `Bu mesaj için 2-3 kelimelik kısa ve kurumsal bir başlık oluştur: "${message}"`,
+      contents: `Kullanıcının şu mesajı için SADECE 2-3 kelimelik tek bir başlık yaz. Asla liste yapma, asla açıklama yapma, sadece başlığı döndür: "${message}"`,
     });
-    return response.text?.replace(/"/g, '') || "Fikir Keşfi";
+    // Herhangi bir liste formatını veya tırnakları temizle
+    let title = response.text?.replace(/[0-9.]/g, '').replace(/"/g, '').trim().split('\n')[0] || "Yeni Sohbet";
+    return title.length > 30 ? title.substring(0, 30) + "..." : title;
   } catch {
-    return "Yeni Sohbet";
+    return "Fikir Keşfi";
   }
 };
