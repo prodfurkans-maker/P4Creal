@@ -19,11 +19,12 @@ Kısıtlamalar:
 `;
 
 export const getEmpathyResponse = async (userMessage: string): Promise<GeminiResponse> => {
-  // process nesnesinin varlığını güvenli bir şekilde kontrol et
-  const apiKey = (window as any).process?.env?.API_KEY || (typeof process !== 'undefined' ? process.env.API_KEY : undefined);
+  // process.env.API_KEY kullanımı Gemini SDK kurallarına göre doğrudan yapılmalıdır.
+  // Bu değişken Vercel veya yerel ortam tarafından otomatik olarak enjekte edilir.
+  const apiKey = process.env.API_KEY;
   
   if (!apiKey) {
-    throw new Error("API Anahtarı bulunamadı. Lütfen Vercel ayarlarından API_KEY ekleyin.");
+    throw new Error("API_KEY_MISSING");
   }
 
   const ai = new GoogleGenAI({ apiKey });
@@ -51,8 +52,8 @@ export const getEmpathyResponse = async (userMessage: string): Promise<GeminiRes
     if (!text) throw new Error("API boş cevap döndürdü.");
     
     return JSON.parse(text.trim());
-  } catch (error) {
-    console.error("Gemini Error:", error);
+  } catch (error: any) {
+    console.error("Gemini Error Details:", error);
     throw error;
   }
 };

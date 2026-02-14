@@ -44,22 +44,31 @@ const App: React.FC = () => {
       };
       setMessages(prev => [...prev, aiMsg]);
     } catch (err: any) {
-      console.error(err);
-      setError("Bağlantı hatası. Lütfen API anahtarını kontrol edin veya tekrar deneyin.");
-      const errorMsg: Message = {
+      console.error("Chat Error:", err);
+      let errorMessage = "Bir sorun oluştu, lütfen tekrar deneyin.";
+      
+      if (err.message === "API_KEY_MISSING") {
+        errorMessage = "API Anahtarı eksik. Lütfen Vercel panelinden API_KEY tanımlayın.";
+      } else if (err.message?.includes("API key not valid")) {
+        errorMessage = "API Anahtarı geçersiz. Lütfen anahtarınızı kontrol edin.";
+      }
+
+      setError(errorMessage);
+      
+      const assistantErrorMsg: Message = {
         id: (Date.now() + 1).toString(),
         role: 'assistant',
-        content: 'Üzgünüm, şu an felsefi bir derinliğe inemiyorum. Teknik bir aksaklık oldu.',
+        content: `Sistem Uyarısı: ${errorMessage}`,
         timestamp: Date.now()
       };
-      setMessages(prev => [...prev, errorMsg]);
+      setMessages(prev => [...prev, assistantErrorMsg]);
     } finally {
       setIsLoading(false);
     }
   };
 
   return (
-    <div className="flex h-screen bg-white overflow-hidden text-slate-900">
+    <div className="flex h-screen bg-white overflow-hidden text-slate-900 font-sans">
       <Sidebar />
 
       <main className="flex-1 flex flex-col relative min-w-0">
@@ -71,7 +80,7 @@ const App: React.FC = () => {
           </div>
         </header>
 
-        {/* Chat Messages */}
+        {/* Chat Messages Area */}
         <div ref={scrollRef} className="flex-1 overflow-y-auto px-4 py-8 md:px-12 space-y-8 scroll-smooth">
           {messages.length === 0 && (
             <div className="h-full flex flex-col items-center justify-center text-center max-w-2xl mx-auto space-y-8 animate-in fade-in duration-700">
@@ -87,10 +96,16 @@ const App: React.FC = () => {
                 </p>
               </div>
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 w-full">
-                <button onClick={() => setInput("Arkadaşlarımla aramdaki bir anlaşmazlık üzerine düşünüyorum...")} className="p-5 text-left border-2 border-slate-100 rounded-3xl hover:border-indigo-200 hover:bg-indigo-50/30 transition-all text-slate-600 font-medium">
+                <button 
+                  onClick={() => setInput("Arkadaşlarımla aramdaki bir anlaşmazlık üzerine düşünüyorum...")} 
+                  className="p-5 text-left border-2 border-slate-100 rounded-3xl hover:border-indigo-200 hover:bg-indigo-50/30 transition-all text-slate-600 font-medium"
+                >
                   "Arkadaşlarımla aramda..."
                 </button>
-                <button onClick={() => setInput("Kendi kararlarımı alırken bazen zorlanıyorum, çünkü...")} className="p-5 text-left border-2 border-slate-100 rounded-3xl hover:border-indigo-200 hover:bg-indigo-50/30 transition-all text-slate-600 font-medium">
+                <button 
+                  onClick={() => setInput("Kendi kararlarımı alırken bazen zorlanıyorum, çünkü...")} 
+                  className="p-5 text-left border-2 border-slate-100 rounded-3xl hover:border-indigo-200 hover:bg-indigo-50/30 transition-all text-slate-600 font-medium"
+                >
                   "Karar alırken zorlanıyorum..."
                 </button>
               </div>
@@ -124,7 +139,7 @@ const App: React.FC = () => {
                         </div>
                       </div>
                     ) : (
-                      <p className="text-lg leading-relaxed">{msg.content}</p>
+                      <p className="text-lg leading-relaxed whitespace-pre-wrap">{msg.content}</p>
                     )}
                   </div>
                 )}
@@ -147,9 +162,14 @@ const App: React.FC = () => {
         </div>
 
         {/* Input Area */}
-        <div className="p-4 md:p-10 chat-gradient border-t lg:border-t-0">
+        <div className="p-4 md:p-10 chat-gradient border-t lg:border-t-0 bg-white">
           <div className="max-w-4xl mx-auto space-y-4">
-            {error && <div className="text-center text-red-500 text-sm font-bold animate-pulse">{error}</div>}
+            {error && (
+              <div className="bg-red-50 border border-red-100 text-red-600 p-4 rounded-2xl text-sm font-medium flex items-center gap-3 animate-in shake">
+                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="8" x2="12" y2="12"></line><line x1="12" y1="16" x2="12.01" y2="16"></line></svg>
+                {error}
+              </div>
+            )}
             
             <div className="relative flex items-end">
               <textarea
