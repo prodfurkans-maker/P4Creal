@@ -1,11 +1,33 @@
-<div align="center">
 
-<img width="1200" height="475" alt="GHBanner" src="https://github.com/user-attachments/assets/0aa67016-6eaf-458a-adb2-6e31a0763ed6" />
+# Empati Yapay Zeka – P4C Edition
 
-  <h1>Built with AI Studio</h2>
+Next Gen Lab için geliştirilmiş, 10-14 yaş grubu çocuklara yönelik felsefe temelli bir empati asistanıdır.
 
-  <p>The fastest path from prompt to production with Gemini.</p>
+## 🚀 Hızlı Kurulum
 
-  <a href="https://aistudio.google.com/apps">Start building</a>
+1.  Proje klasöründe bağımlılıkları yükleyin:
+    ```bash
+    npm install
+    ```
+2.  `.env.local` dosyası oluşturun ve API anahtarınızı ekleyin:
+    ```env
+    API_KEY=google_ai_studio_anahtariniz
+    ```
+3.  Uygulamayı çalıştırın:
+    ```bash
+    npm run dev
+    ```
 
-</div>
+## ☁️ Vercel Kurulum Rehberi (Öğretmenler İçin)
+
+Uygulamayı internete yüklemek ve gerçek sınıfta kullanmak için şu adımları izleyin:
+
+1.  **API Anahtarı Alın:** [Google AI Studio](https://aistudio.google.com/) adresine gidin ve ücretsiz bir API key alın.
+2.  **Vercel'e Yükleyin:** Projenizi GitHub'a yükleyip Vercel'e bağlayın.
+3.  **Ayarları Yapın:** Vercel panelinde `Settings` -> `Environment Variables` kısmına gelin.
+    *   **Key:** `API_KEY`
+    *   **Value:** (Google'dan aldığınız anahtar)
+4.  **Deploy Et:** "Deploy" butonuna basın. Uygulamanız birkaç saniye içinde hazır olacak!
+
+---
+**NOT:** Bu uygulama bir terapi aracı değildir, felsefi düşünme ve empati kurma becerilerini geliştirmeye yönelik bir eğitim asistanıdır.
