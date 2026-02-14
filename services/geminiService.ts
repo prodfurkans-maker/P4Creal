@@ -1,4 +1,3 @@
-
 import { GoogleGenAI, Type } from "@google/genai";
 import { GeminiResponse } from "../types.ts";
 
@@ -23,7 +22,7 @@ Teknik Kısıtlamalar:
 `;
 
 export const getEmpathyResponse = async (userMessage: string): Promise<GeminiResponse> => {
-  const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
+  const ai = new GoogleGenAI({ apiKey: import.meta.env.VITE_API_KEY });
   
   try {
     const response = await ai.models.generateContent({
@@ -54,13 +53,12 @@ export const getEmpathyResponse = async (userMessage: string): Promise<GeminiRes
 };
 
 export const generateTitle = async (message: string): Promise<string> => {
-  const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
+  const ai = new GoogleGenAI({ apiKey: import.meta.env.VITE_API_KEY }); // BURASI DÜZELTİLDİ
   try {
     const response = await ai.models.generateContent({
       model: "gemini-3-flash-preview",
       contents: `Kullanıcının şu mesajı için SADECE 2-3 kelimelik tek bir başlık yaz. Asla liste yapma, asla açıklama yapma, sadece başlığı döndür: "${message}"`,
     });
-    // Herhangi bir liste formatını veya tırnakları temizle
     let title = response.text?.replace(/[0-9.]/g, '').replace(/"/g, '').trim().split('\n')[0] || "Yeni Sohbet";
     return title.length > 30 ? title.substring(0, 30) + "..." : title;
   } catch {
