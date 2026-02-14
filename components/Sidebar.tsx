@@ -2,6 +2,8 @@
 import React from 'react';
 
 const Sidebar: React.FC = () => {
+  const isKeyActive = !!process.env.API_KEY;
+
   return (
     <aside className="hidden lg:flex flex-col w-80 bg-slate-900 text-white p-8 border-r border-slate-800 shadow-2xl">
       <div className="flex items-center gap-4 mb-12">
@@ -33,8 +35,10 @@ const Sidebar: React.FC = () => {
 
       <div className="mt-auto pt-8 border-t border-slate-800 space-y-4">
         <div className="flex items-center gap-3">
-          <div className="w-3 h-3 bg-emerald-500 rounded-full animate-pulse shadow-lg shadow-emerald-500/50"></div>
-          <span className="text-[10px] font-black uppercase tracking-widest text-slate-400">Güvenli Mod Aktif</span>
+          <div className={`w-3 h-3 rounded-full animate-pulse shadow-lg ${isKeyActive ? 'bg-emerald-500 shadow-emerald-500/50' : 'bg-amber-500 shadow-amber-500/50'}`}></div>
+          <span className="text-[10px] font-black uppercase tracking-widest text-slate-400">
+            {isKeyActive ? 'Sistem Aktif' : 'Kurulum Bekleniyor'}
+          </span>
         </div>
         <p className="text-[9px] text-slate-600 font-bold leading-tight uppercase tracking-tighter">
           © 2024 Next Gen Lab <br/> Tüm Hakları Saklıdır

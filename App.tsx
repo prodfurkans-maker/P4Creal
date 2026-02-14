@@ -9,7 +9,28 @@ const App: React.FC = () => {
   const [input, setInput] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [hasApiKey, setHasApiKey] = useState<boolean>(!!process.env.API_KEY);
   const scrollRef = useRef<HTMLDivElement>(null);
+
+  // API Key kontrolü
+  useEffect(() => {
+    const checkKey = async () => {
+      if (!process.env.API_KEY && window.aistudio) {
+        const selected = await window.aistudio.hasSelectedApiKey();
+        setHasApiKey(selected);
+      }
+    };
+    checkKey();
+  }, []);
+
+  const handleOpenKeySelector = async () => {
+    if (window.aistudio) {
+      await window.aistudio.openSelectKey();
+      setHasApiKey(true); // Race condition için direkt true varsayıyoruz
+    } else {
+      setError("Bu ortamda API Key seçici desteklenmiyor. Lütfen Vercel ayarlarını kontrol edin.");
+    }
+  };
 
   useEffect(() => {
     if (scrollRef.current) {
@@ -45,34 +66,51 @@ const App: React.FC = () => {
       setMessages(prev => [...prev, aiMsg]);
     } catch (err: any) {
       console.error("Chat Error:", err);
-      let errorMessage = "Bir sorun oluştu, lütfen tekrar deneyin.";
+      let errorMessage = "Bir sorun oluştu.";
       
-      if (err.message === "API_KEY_MISSING") {
-        errorMessage = "API Anahtarı eksik. Lütfen Vercel panelinden API_KEY tanımlayın.";
-      } else if (err.message?.includes("API key not valid")) {
-        errorMessage = "API Anahtarı geçersiz. Lütfen anahtarınızı kontrol edin.";
+      if (err.message?.includes("Requested entity was not found") || err.message === "API_KEY_MISSING") {
+        setHasApiKey(false);
+        errorMessage = "API Bağlantısı kesildi. Lütfen tekrar yetkilendirin.";
       }
 
       setError(errorMessage);
-      
-      const assistantErrorMsg: Message = {
-        id: (Date.now() + 1).toString(),
+      setMessages(prev => [...prev, {
+        id: Date.now().toString(),
         role: 'assistant',
         content: `Sistem Uyarısı: ${errorMessage}`,
         timestamp: Date.now()
-      };
-      setMessages(prev => [...prev, assistantErrorMsg]);
+      }]);
     } finally {
       setIsLoading(false);
     }
   };
+
+  if (!hasApiKey && !process.env.API_KEY) {
+    return (
+      <div className="flex flex-col items-center justify-center min-h-screen bg-slate-50 p-6 text-center">
+        <div className="w-20 h-20 bg-indigo-600 rounded-3xl flex items-center justify-center text-white text-3xl font-bold mb-8 shadow-2xl">NG</div>
+        <h1 className="text-3xl font-black text-slate-900 mb-4 tracking-tight">Next Gen Lab P4C Asistanı</h1>
+        <p className="text-slate-500 max-w-md mb-8 leading-relaxed">
+          Güvenli ve felsefi bir sohbet deneyimi için Gemini API bağlantısını kurmamız gerekiyor.
+        </p>
+        <button 
+          onClick={handleOpenKeySelector}
+          className="bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-4 px-10 rounded-2xl shadow-xl shadow-indigo-200 transition-all active:scale-95"
+        >
+          API Anahtarını Etkinleştir
+        </button>
+        <a href="https://ai.google.dev/gemini-api/docs/billing" target="_blank" className="mt-6 text-xs text-slate-400 hover:underline">
+          Faturalandırma Hakkında Bilgi
+        </a>
+      </div>
+    );
+  }
 
   return (
     <div className="flex h-screen bg-white overflow-hidden text-slate-900 font-sans">
       <Sidebar />
 
       <main className="flex-1 flex flex-col relative min-w-0">
-        {/* Mobile Header */}
         <header className="lg:hidden p-4 border-b bg-white flex items-center justify-between sticky top-0 z-10">
           <div className="flex items-center gap-2">
             <div className="w-8 h-8 bg-indigo-600 rounded-lg flex items-center justify-center text-white font-bold text-xs">NG</div>
@@ -80,34 +118,19 @@ const App: React.FC = () => {
           </div>
         </header>
 
-        {/* Chat Messages Area */}
         <div ref={scrollRef} className="flex-1 overflow-y-auto px-4 py-8 md:px-12 space-y-8 scroll-smooth">
           {messages.length === 0 && (
             <div className="h-full flex flex-col items-center justify-center text-center max-w-2xl mx-auto space-y-8 animate-in fade-in duration-700">
               <div className="w-24 h-24 bg-indigo-50 rounded-[2.5rem] flex items-center justify-center shadow-inner">
-                <span className="text-5xl animate-pulse">💡</span>
+                <span className="text-5xl animate-pulse">🏛️</span>
               </div>
               <div className="space-y-4">
                 <h2 className="text-3xl md:text-5xl font-black text-slate-900 tracking-tight leading-tight">
-                  Sokratik Bir Sohbet <br/> <span className="text-indigo-600">Başlatmaya Ne Dersin?</span>
+                  Düşüncelerine <br/> <span className="text-indigo-600">Felsefi Bir Pencere Aç</span>
                 </h2>
                 <p className="text-slate-500 text-lg md:text-xl font-medium">
-                  Düşüncelerini, hislerini veya bugün seni meşgul eden herhangi bir şeyi yazabilirsin.
+                  Bugün seni meşgul eden bir konuyu veya duyguyu paylaşabilirsin.
                 </p>
-              </div>
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 w-full">
-                <button 
-                  onClick={() => setInput("Arkadaşlarımla aramdaki bir anlaşmazlık üzerine düşünüyorum...")} 
-                  className="p-5 text-left border-2 border-slate-100 rounded-3xl hover:border-indigo-200 hover:bg-indigo-50/30 transition-all text-slate-600 font-medium"
-                >
-                  "Arkadaşlarımla aramda..."
-                </button>
-                <button 
-                  onClick={() => setInput("Kendi kararlarımı alırken bazen zorlanıyorum, çünkü...")} 
-                  className="p-5 text-left border-2 border-slate-100 rounded-3xl hover:border-indigo-200 hover:bg-indigo-50/30 transition-all text-slate-600 font-medium"
-                >
-                  "Karar alırken zorlanıyorum..."
-                </button>
               </div>
             </div>
           )}
@@ -120,7 +143,7 @@ const App: React.FC = () => {
                 : 'bg-slate-50 border border-slate-100 text-slate-800 rounded-bl-none'
               }`}>
                 {msg.role === 'user' ? (
-                  <p className="text-lg leading-relaxed font-medium">{msg.content}</p>
+                  <p className="text-lg leading-relaxed font-medium">{String(msg.content)}</p>
                 ) : (
                   <div className="space-y-6">
                     {msg.data ? (
@@ -139,7 +162,7 @@ const App: React.FC = () => {
                         </div>
                       </div>
                     ) : (
-                      <p className="text-lg leading-relaxed whitespace-pre-wrap">{msg.content}</p>
+                      <p className="text-lg leading-relaxed whitespace-pre-wrap">{String(msg.content)}</p>
                     )}
                   </div>
                 )}
@@ -155,22 +178,14 @@ const App: React.FC = () => {
                   <div className="w-2 h-2 bg-indigo-400 rounded-full animate-bounce delay-100"></div>
                   <div className="w-2 h-2 bg-indigo-400 rounded-full animate-bounce delay-200"></div>
                 </div>
-                <span className="text-sm font-bold text-slate-400 uppercase tracking-widest">Düşünülüyor...</span>
+                <span className="text-sm font-bold text-slate-400 uppercase tracking-widest">Sorgulanıyor...</span>
               </div>
             </div>
           )}
         </div>
 
-        {/* Input Area */}
-        <div className="p-4 md:p-10 chat-gradient border-t lg:border-t-0 bg-white">
+        <div className="p-4 md:p-10 bg-white border-t lg:border-t-0">
           <div className="max-w-4xl mx-auto space-y-4">
-            {error && (
-              <div className="bg-red-50 border border-red-100 text-red-600 p-4 rounded-2xl text-sm font-medium flex items-center gap-3 animate-in shake">
-                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="8" x2="12" y2="12"></line><line x1="12" y1="16" x2="12.01" y2="16"></line></svg>
-                {error}
-              </div>
-            )}
-            
             <div className="relative flex items-end">
               <textarea
                 value={input}
@@ -192,7 +207,6 @@ const App: React.FC = () => {
                 <svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><line x1="22" y1="2" x2="11" y2="13"></line><polygon points="22 2 15 22 11 13 2 9 22 2"></polygon></svg>
               </button>
             </div>
-            
             <p className="text-center text-[10px] text-slate-400 font-bold uppercase tracking-[0.2em]">
               Next Gen Lab P4C Asistanı • Terapötik Destek Değildir
             </p>
