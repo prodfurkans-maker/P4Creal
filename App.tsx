@@ -152,48 +152,48 @@ const App: React.FC = () => {
         {/* Dynamic Content Area */}
         <div ref={scrollRef} className="flex-1 overflow-y-auto no-scrollbar relative z-10 scroll-smooth h-full">
           {!activeSessionId ? (
-            <div className="h-full flex flex-col items-center justify-center py-2 md:py-8 px-6 max-w-2xl mx-auto overflow-hidden animate-in fade-in duration-1000 space-y-4 md:space-y-12">
+            <div className="h-full flex flex-col items-center justify-between py-6 md:py-12 px-6 max-w-4xl mx-auto overflow-hidden animate-in fade-in duration-1000">
               
-              {/* Logo Bölümü - Daha büyük, tam görünür */}
-              <div className="logo-container flex items-center gap-8 md:gap-16 p-6 md:p-12 rounded-[2.5rem] md:rounded-[4rem] shadow-xl transform scale-[0.9] md:scale-110 shrink-0">
+              {/* Logo Bölümü - PC'de merkeze çekildi, kesilmesi engellendi */}
+              <div className="logo-container flex items-center gap-8 md:gap-16 p-6 md:p-10 rounded-[2.5rem] md:rounded-[4rem] shadow-xl transform scale-[0.9] md:scale-110 shrink-0 transition-transform duration-500">
                 <img src={LOGO_URL} alt="NextGen Lab Logo" className="w-16 h-16 md:w-32 md:h-32 object-contain" />
                 <div className="h-10 md:h-20 w-px bg-slate-200"></div>
                 <img src={SECOND_LOGO_URL} alt="Partner Logo" className="w-16 h-16 md:w-32 md:h-32 object-contain" />
               </div>
               
               {/* Slogan Bölümü */}
-              <div className="space-y-4 md:space-y-10 text-center w-full shrink-0">
+              <div className="space-y-6 md:space-y-12 text-center w-full shrink-0">
                 <h2 className="text-3xl md:text-7xl font-[950] text-slate-900 tracking-tightest leading-[1.1]">
-                  Düşüncelerini<br/> 
-                  <span className="text-indigo-600">Özgürce Keşfet.</span>
+                  Sor. Düşün.<br/> 
+                  <span className="text-indigo-600">Yapay Zeka ile Keşfet.</span>
                 </h2>
-                <div className="space-y-3 md:space-y-6">
-                  <p className="text-slate-500 text-base md:text-2xl font-medium tracking-tight opacity-80 max-w-[280px] md:max-w-lg mx-auto leading-tight">
+                <div className="space-y-4">
+                  <p className="text-slate-500 text-base md:text-2xl font-medium tracking-tight opacity-80 max-w-[280px] md:max-w-xl mx-auto leading-tight">
                     "Yapay Zeka Çağında Düşünen Nesiller."
                   </p>
                   <div className="inline-block bg-blue-50 border border-blue-100/50 px-4 md:px-10 py-1.5 md:py-3 rounded-full shadow-sm">
-                    <p className="text-blue-600 text-[9px] md:text-sm font-black uppercase tracking-[0.2em] md:tracking-[0.4em] whitespace-nowrap">
+                    <p className="text-blue-600 text-[9px] md:text-base font-black uppercase tracking-[0.2em] md:tracking-[0.45em] whitespace-nowrap">
                       P4C + YAPAY ZEKA = GELECEĞİN EĞİTİMİ
                     </p>
                   </div>
                 </div>
               </div>
 
-              {/* Öneriler - Kompakt hale getirildi */}
-              <div className="w-full grid grid-cols-1 md:grid-cols-2 gap-3 md:gap-6 shrink-0 max-w-lg md:max-w-3xl">
+              {/* Öneriler */}
+              <div className="w-full grid grid-cols-1 md:grid-cols-2 gap-3 md:gap-8 shrink-0 max-w-lg md:max-w-3xl">
                 <button 
                   onClick={() => handleSend("Hayal kurmak sence zihnimizin bir süper gücü müdür?")}
-                  className="p-4 md:p-8 text-left bg-white border border-slate-100 rounded-[1.5rem] md:rounded-[2.5rem] hover:border-indigo-300 hover:shadow-2xl transition-all group active:scale-[0.96] shadow-sm"
+                  className="p-4 md:p-10 text-left bg-white border border-slate-100 rounded-[1.5rem] md:rounded-[2.5rem] hover:border-indigo-300 hover:shadow-2xl transition-all group active:scale-[0.96] shadow-sm"
                 >
-                  <span className="block text-indigo-500 font-black text-[8px] md:text-xs uppercase tracking-widest mb-1 md:mb-4">Yaratıcılık</span>
-                  <p className="text-slate-800 font-bold text-xs md:text-xl leading-snug">"Zihnimiz sınır tanımaz mı?"</p>
+                  <span className="block text-indigo-500 font-black text-[8px] md:text-sm uppercase tracking-widest mb-1 md:mb-5">Yaratıcılık</span>
+                  <p className="text-slate-800 font-bold text-xs md:text-2xl leading-snug">"Zihnimiz sınır tanımaz mı?"</p>
                 </button>
                 <button 
                   onClick={() => handleSend("İyi bir insan olmayı sağlayan şey sadece yaptıklarımız mıdır?")}
-                  className="p-4 md:p-8 text-left bg-white border border-slate-100 rounded-[1.5rem] md:rounded-[2.5rem] hover:border-emerald-300 hover:shadow-2xl transition-all group active:scale-[0.96] shadow-sm"
+                  className="p-4 md:p-10 text-left bg-white border border-slate-100 rounded-[1.5rem] md:rounded-[2.5rem] hover:border-emerald-300 hover:shadow-2xl transition-all group active:scale-[0.96] shadow-sm"
                 >
-                  <span className="block text-emerald-500 font-black text-[8px] md:text-xs uppercase tracking-widest mb-1 md:mb-4">Etik</span>
-                  <p className="text-slate-800 font-bold text-xs md:text-xl leading-snug">"İyilik eylemde midir?"</p>
+                  <span className="block text-emerald-500 font-black text-[8px] md:text-sm uppercase tracking-widest mb-1 md:mb-5">Etik</span>
+                  <p className="text-slate-800 font-bold text-xs md:text-2xl leading-snug">"İyilik eylemde midir?"</p>
                 </button>
               </div>
             </div>
