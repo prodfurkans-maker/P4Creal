@@ -23,7 +23,7 @@ Teknik Kısıtlamalar:
 `;
 
 export const getEmpathyResponse = async (userMessage: string): Promise<GeminiResponse> => {
-  const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
+  const ai = new GoogleGenAI({ apiKey: import.meta.env.VITE_API_KEY });
   
   try {
     const response = await ai.models.generateContent({
