@@ -1,4 +1,4 @@
-import { GoogleGenerativeAI, SchemaType } from "@google/genai";
+import { GoogleGenAI, Type } from "@google/genai";
 import { GeminiResponse } from "../types"; // uzantıyı kaldırdık
 
 const SYSTEM_INSTRUCTION = `
@@ -16,32 +16,32 @@ PEDAGOJİK STANDARTLAR:
 Dil: Türkçe. Üslup: Zeki, meraklı, nazik. Sadece JSON döndür.
 `;
 
-const ai = new GoogleGenerativeAI({
+const ai = new GoogleGenAI({
   apiKey: process.env.VITE_GEMINI_API_KEY, // Vercel'de tanımladığın environment variable
 });
 
 export const getEmpathyResponse = async (userMessage: string): Promise<GeminiResponse> => {
   try {
-    const model = ai.getGenerativeModel({
-      model: "gemini-3-flash",
-      generationConfig: {
-        temperature: 0.75,
+    const response = await ai.models.generateContent({
+      model: "gemini-3-flash", // doğru model adı
+      contents: userMessage,
+      config: {
+        systemInstruction: SYSTEM_INSTRUCTION,
         responseMimeType: "application/json",
+        temperature: 0.75,
         responseSchema: {
-          type: SchemaType.OBJECT,
+          type: Type.OBJECT,
           properties: {
-            empathy: { type: SchemaType.STRING },
-            suggestion: { type: SchemaType.STRING },
-            question: { type: SchemaType.STRING },
+            empathy: { type: Type.STRING },
+            suggestion: { type: Type.STRING },
+            question: { type: Type.STRING },
           },
           required: ["empathy", "suggestion", "question"],
         },
       },
-      systemInstruction: SYSTEM_INSTRUCTION,
     });
 
-    const response = await model.generateContent(userMessage);
-    const text = response.response.text();
+    const text = response.text;
     if (!text) throw new Error("EMPTY_RESPONSE");
     return JSON.parse(text.trim());
   } catch (error) {
@@ -52,17 +52,14 @@ export const getEmpathyResponse = async (userMessage: string): Promise<GeminiRes
 
 export const generateTitle = async (message: string): Promise<string> => {
   try {
-    const model = ai.getGenerativeModel({
+    const response = await ai.models.generateContent({
       model: "gemini-3-flash",
-      generationConfig: { temperature: 1 },
+      contents: `Şu düşünce için 2 kelimelik felsefi ve zekice bir başlık yaz: "${message}"`,
+      config: { temperature: 1 },
     });
 
-    const response = await model.generateContent(
-      `Şu düşünce için 2 kelimelik felsefi ve zekice bir başlık yaz: "${message}"`
-    );
-
     let title =
-      response.response.text()?.replace(/[0-9.]/g, "").replace(/"/g, "").trim().split("\n")[0] ||
+      response.text?.replace(/[0-9.]/g, "").replace(/"/g, "").trim().split("\n")[0] ||
       "Fikir Keşfi";
     return title.length > 25 ? title.substring(0, 25) : title;
   } catch {
