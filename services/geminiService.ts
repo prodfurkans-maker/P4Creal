@@ -17,13 +17,13 @@ Dil: Türkçe. Üslup: Zeki, meraklı, nazik. Sadece JSON döndür.
 `;
 
 const ai = new GoogleGenAI({
-  apiKey: process.env.VITE_GEMINI_API_KEY, // Vercel'de tanımladığın environment variable
+  apiKey: import.meta.env.VITE_GEMINI_API_KEY, // tarayıcıda doğru kullanım
 });
 
 export const getEmpathyResponse = async (userMessage: string): Promise<GeminiResponse> => {
   try {
     const response = await ai.models.generateContent({
-      model: "gemini-3-flash", // doğru model adı
+      model: "gemini-3-flash",
       contents: userMessage,
       config: {
         systemInstruction: SYSTEM_INSTRUCTION,
