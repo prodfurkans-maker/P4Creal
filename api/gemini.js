@@ -8,7 +8,13 @@ export default async function handler(req, res) {
       model: "gemini-1.5-flash",
     });
 
-    const result = await model.generateContent(req.body.message);
+    let prompt = req.body.message;
+
+    if (req.body.type === "title") {
+      prompt = `Şu düşünce için 2 kelimelik felsefi başlık yaz: "${req.body.message}"`;
+    }
+
+    const result = await model.generateContent(prompt);
 
     res.status(200).json({ text: result.response.text() });
   } catch (e) {
