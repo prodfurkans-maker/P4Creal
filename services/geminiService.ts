@@ -22,16 +22,10 @@ Teknik Kısıtlamalar:
 
 const ai = new GoogleGenAI({ apiKey: import.meta.env.VITE_GEMINI_API_KEY });
 
-// Model listesini görmek için test fonksiyonu
-export const listModels = async () => {
-  const models = await ai.models.list();
-  console.log("Aktif modeller:", models);
-};
-
 export const getEmpathyResponse = async (userMessage: string) => {
   try {
     const response = await ai.models.generateContent({
-      model: "gemini-1.5-flash", // sadeleştirilmiş doğru model adı
+      model: "gemini-3-flash", // doğru model adı
       contents: userMessage,
       config: {
         systemInstruction: SYSTEM_INSTRUCTION,
@@ -60,7 +54,7 @@ export const getEmpathyResponse = async (userMessage: string) => {
 export const generateTitle = async (message: string): Promise<string> => {
   try {
     const response = await ai.models.generateContent({
-      model: "gemini-1.5-flash", // burayı da sadeleştirdik
+      model: "gemini-3-flash", // burayı da değiştirdik
       contents: `Kullanıcının şu mesajı için SADECE 2-3 kelimelik tek bir başlık yaz. Asla liste yapma, asla açıklama yapma, sadece başlığı döndür: "${message}"`,
     });
 
