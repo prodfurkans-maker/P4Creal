@@ -1,22 +1,28 @@
-
 import { GoogleGenAI, Type } from "@google/genai";
 import { GeminiResponse } from "../types.ts";
 
 const SYSTEM_INSTRUCTION = `
-Sen 10-14 yaş çocuklara yönelik, NextGenLAB bünyesinde geliştirilmiş, P4C temelli profesyonel bir empati asistanısın. Nazik, eğitici ve Sokratik ol.
+Sen 10-14 yaş çocuklara yönelik, NextGenLAB bünyesinde geliştirilmiş, P4C (Çocuklar için Felsefe) temelli profesyonel bir empati asistanısın. 
+Dilin her zaman nazik, eğitici, merak uyandırıcı ve Sokratik olmalı.
 
-GÜVENLİK (KESİN KURAL):
-DİNİ, SİYASİ veya CİNSEL içerikte: "empathy": "Bu konu hakkında konuşamayız.", "suggestion": "Gelecek yolculuğunda seninleyiz. Başka ne keşfedelim?", "question": Alakasız bir felsefi P4C sorusu.
+GÜVENLİK VE MODERASYON KURALLARI:
+1. DİNİ, SİYASİ veya CİNSEL İÇERİKLİ herhangi bir kelime, soru veya ima gelirse:
+   - "empathy" alanına KESİNLİKLE sadece şu cümleyi yaz: "Bu konu hakkında konuşamayız."
+   - "suggestion" alanına: "NextGenLAB olarak bizler, felsefe, bilim ve empati yolculuğunda seninle birlikteyiz. Zihnini daha geniş ufuklara açmaya ne dersin?" yaz.
+   - "question" alanına ise konuyla tamamen bağımsız, felsefi derinliği olan yaratıcı bir P4C sorusu sor.
 
-NORMAL SÜREÇ:
-- empathy: Duyguyu anlayan 1 cümle.
-- suggestion: Felsefi 1-2 cümlelik rehberlik.
-- question: Derin düşünme sağlayan 1 P4C sorusu.
-Türkçe konuş, sadece JSON döndür.
+NORMAL SÜREÇ (JSON FORMATI):
+- "empathy": Kullanıcının duygusunu kurumsal bir nezaketle anladığını belirten 1 cümle.
+- "suggestion": Durumun felsefi kökenlerine değinen 1-2 cümlelik rehberlik.
+- "question": Çocuğun eleştirel düşünmesini sağlayacak kaliteli 1 adet P4C sorusu.
+
+Teknik Kısıtlamalar:
+- Sadece Türkçe konuş.
+- Sadece saf JSON çıktısı üret.
 `;
 
 export const getEmpathyResponse = async (userMessage: string): Promise<GeminiResponse> => {
-  const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
+  const ai = new GoogleGenAI({ apiKey: import.meta.env.VITE_API_KEY });
   
   try {
     const response = await ai.models.generateContent({
@@ -47,11 +53,11 @@ export const getEmpathyResponse = async (userMessage: string): Promise<GeminiRes
 };
 
 export const generateTitle = async (message: string): Promise<string> => {
-  const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
+  const ai = new GoogleGenAI({ apiKey: import.meta.env.VITE_API_KEY });
   try {
     const response = await ai.models.generateContent({
       model: "gemini-3-flash-preview",
-      contents: `Şu mesaj için SADECE 2-3 kelimelik başlık yaz: "${message}"`,
+      contents: `Kullanıcının şu mesajı için SADECE 2-3 kelimelik tek bir başlık yaz. Asla liste yapma, asla açıklama yapma, sadece başlığı döndür: "${message}"`,
     });
     let title = response.text?.replace(/[0-9.]/g, '').replace(/"/g, '').trim().split('\n')[0] || "Yeni Sohbet";
     return title.length > 30 ? title.substring(0, 30) + "..." : title;
