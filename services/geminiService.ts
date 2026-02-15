@@ -1,4 +1,4 @@
-import { GoogleGenAI, Type } from "@google/genai";
+import { GoogleGenerativeAI, SchemaType } from "@google/genai";
 
 const SYSTEM_INSTRUCTION = `
 Sen 10-14 yaş çocuklara yönelik, NextGenLAB bünyesinde geliştirilmiş, P4C (Çocuklar için Felsefe) temelli profesyonel bir empati asistanısın. 
@@ -20,29 +20,31 @@ Teknik Kısıtlamalar:
 - Sadece saf JSON çıktısı üret.
 `;
 
-const ai = new GoogleGenAI({ apiKey: import.meta.env.VITE_GEMINI_API_KEY });
+const ai = new GoogleGenerativeAI({
+  apiKey: import.meta.env.VITE_GEMINI_API_KEY,
+});
 
 export const getEmpathyResponse = async (userMessage: string) => {
   try {
-    const response = await ai.models.generateContent({
+    const model = ai.getGenerativeModel({
       model: "gemini-3-flash", // doğru model adı
-      contents: userMessage,
-      config: {
-        systemInstruction: SYSTEM_INSTRUCTION,
+      generationConfig: {
         responseMimeType: "application/json",
         responseSchema: {
-          type: Type.OBJECT,
+          type: SchemaType.OBJECT,
           properties: {
-            empathy: { type: Type.STRING },
-            suggestion: { type: Type.STRING },
-            question: { type: Type.STRING }
+            empathy: { type: SchemaType.STRING },
+            suggestion: { type: SchemaType.STRING },
+            question: { type: SchemaType.STRING },
           },
-          required: ["empathy", "suggestion", "question"]
-        }
+          required: ["empathy", "suggestion", "question"],
+        },
       },
+      systemInstruction: SYSTEM_INSTRUCTION,
     });
 
-    const text = response.text;
+    const response = await model.generateContent(userMessage);
+    const text = response.response.text();
     if (!text) throw new Error("API_ERROR");
     return JSON.parse(text.trim());
   } catch (error) {
@@ -53,12 +55,17 @@ export const getEmpathyResponse = async (userMessage: string) => {
 
 export const generateTitle = async (message: string): Promise<string> => {
   try {
-    const response = await ai.models.generateContent({
-      model: "gemini-3-flash", // burayı da değiştirdik
-      contents: `Kullanıcının şu mesajı için SADECE 2-3 kelimelik tek bir başlık yaz. Asla liste yapma, asla açıklama yapma, sadece başlığı döndür: "${message}"`,
+    const model = ai.getGenerativeModel({
+      model: "gemini-3-flash",
     });
 
-    let title = response.text?.replace(/[0-9.]/g, '').replace(/"/g, '').trim().split('\n')[0] || "Yeni Sohbet";
+    const response = await model.generateContent(
+      `Kullanıcının şu mesajı için SADECE 2-3 kelimelik tek bir başlık yaz. Asla liste yapma, asla açıklama yapma, sadece başlığı döndür: "${message}"`
+    );
+
+    let title =
+      response.response.text()?.replace(/[0-9.]/g, "").replace(/"/g, "").trim().split("\n")[0] ||
+      "Yeni Sohbet";
     return title.length > 30 ? title.substring(0, 30) + "..." : title;
   } catch {
     return "Fikir Keşfi";
