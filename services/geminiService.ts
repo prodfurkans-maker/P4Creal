@@ -1,5 +1,4 @@
-
-import { GoogleGenAI, Type } from "@google/genai";
+import { GoogleGenerativeAI, SchemaType } from "@google/genai";
 import { GeminiResponse } from "../types.ts";
 
 const SYSTEM_INSTRUCTION = `
@@ -17,31 +16,32 @@ PEDAGOJİK STANDARTLAR:
 Dil: Türkçe. Üslup: Zeki, meraklı, nazik. Sadece JSON döndür.
 `;
 
+const ai = new GoogleGenerativeAI({
+  apiKey: process.env.VITE_GEMINI_API_KEY, // Vercel'de tanımladığın environment variable
+});
+
 export const getEmpathyResponse = async (userMessage: string): Promise<GeminiResponse> => {
-  // API Key exclusively from process.env.API_KEY
-  const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
-  
   try {
-    const response = await ai.models.generateContent({
-      model: "gemini-3-flash-preview", // Correct model name to avoid 404
-      contents: userMessage,
-      config: {
-        systemInstruction: SYSTEM_INSTRUCTION,
-        responseMimeType: "application/json",
+    const model = ai.getGenerativeModel({
+      model: "gemini-3-flash", // doğru model adı
+      generationConfig: {
         temperature: 0.75,
+        responseMimeType: "application/json",
         responseSchema: {
-          type: Type.OBJECT,
+          type: SchemaType.OBJECT,
           properties: {
-            empathy: { type: Type.STRING },
-            suggestion: { type: Type.STRING },
-            question: { type: Type.STRING }
+            empathy: { type: SchemaType.STRING },
+            suggestion: { type: SchemaType.STRING },
+            question: { type: SchemaType.STRING },
           },
-          required: ["empathy", "suggestion", "question"]
-        }
+          required: ["empathy", "suggestion", "question"],
+        },
       },
+      systemInstruction: SYSTEM_INSTRUCTION,
     });
 
-    const text = response.text;
+    const response = await model.generateContent(userMessage);
+    const text = response.response.text();
     if (!text) throw new Error("EMPTY_RESPONSE");
     return JSON.parse(text.trim());
   } catch (error) {
@@ -51,14 +51,19 @@ export const getEmpathyResponse = async (userMessage: string): Promise<GeminiRes
 };
 
 export const generateTitle = async (message: string): Promise<string> => {
-  const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
   try {
-    const response = await ai.models.generateContent({
-      model: "gemini-3-flash-preview",
-      contents: `Şu düşünce için 2 kelimelik felsefi ve zekice bir başlık yaz: "${message}"`,
-      config: { temperature: 1 }
+    const model = ai.getGenerativeModel({
+      model: "gemini-3-flash",
+      generationConfig: { temperature: 1 },
     });
-    let title = response.text?.replace(/[0-9.]/g, '').replace(/"/g, '').trim().split('\n')[0] || "Fikir Keşfi";
+
+    const response = await model.generateContent(
+      `Şu düşünce için 2 kelimelik felsefi ve zekice bir başlık yaz: "${message}"`
+    );
+
+    let title =
+      response.response.text()?.replace(/[0-9.]/g, "").replace(/"/g, "").trim().split("\n")[0] ||
+      "Fikir Keşfi";
     return title.length > 25 ? title.substring(0, 25) : title;
   } catch {
     return "Düşünce Yolculuğu";
