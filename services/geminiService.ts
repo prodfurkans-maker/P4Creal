@@ -50,11 +50,12 @@ export const generateTitle = async (message: string): Promise<string> => {
   try {
     const response = await ai.models.generateContent({
       model: "gemini-3-flash-preview",
-      contents: `Şu kullanıcı mesajını özetleyen, mantıklı, profesyonel ve sadece 2-3 kelimelik bir başlık yaz. "Gönül yoklaması" veya "Selamlaşma" gibi saçma sapan veya çok jenerik ifadeler kullanma, içeriğe odaklan: "${message}"`,
+      contents: `Şu mesajın özünü yansıtan, profesyonel, ciddi ve sadece 2-3 kelimelik bir sohbet başlığı yaz. "Selam", "Naber", "Gönül yoklaması" gibi ifadeler kullanma. Konu odaklı ol: "${message}"`,
       config: { temperature: 0.1 }
     });
-    return response.text?.replace(/[0-9."*]/g, '').trim() || "Fikir Keşfi";
+    let title = response.text?.replace(/[0-9."*]/g, '').trim() || "Felsefi Keşif";
+    return title.length > 25 ? title.substring(0, 22) + "..." : title;
   } catch {
-    return "Fikir Keşfi";
+    return "Yeni Sohbet";
   }
 };
