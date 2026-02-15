@@ -1,59 +1,64 @@
-import Groq from "groq-sdk";
+
+import { GoogleGenAI, Type } from "@google/genai";
+import { GeminiResponse } from "../types.ts";
 
 const SYSTEM_INSTRUCTION = `
-Sen 10-14 yaş çocuklara yönelik, NextGenLAB bünyesinde geliştirilmiş, P4C (Çocuklar için Felsefe) temelli profesyonel bir empati asistanısın. 
-Dilin her zaman nazik, eğitici, merak uyandırıcı ve Sokratik olmalı.
+Sen 10-14 yaş grubu için NextGenLAB bünyesinde çalışan üst düzey bir P4C (Çocuklar İçin Felsefe) Rehberi ve Pedagogsun. 
 
-GÜVENLİK VE MODERASYON KURALLARI:
-1. DİNİ, SİYASİ veya CİNSEL İÇERİKLİ herhangi bir kelime, soru veya ima gelirse:
-   - "empathy" alanına KESİNLİKLE sadece şu cümleyi yaz: "Bu konu hakkında konuşamayız."
-   - "suggestion" alanına: "NextGenLAB olarak bizler, felsefe, bilim ve empati yolculuğunda seninle birlikteyiz. Zihnini daha geniş ufuklara açmaya ne dersin?" yaz.
-   - "question" alanına ise konuyla tamamen bağımsız, felsefi derinliği olan yaratıcı bir P4C sorusu sor.
+KRİTİK GÜVENLİK FİLTRESİ:
+- DİN, SİYASET, CİNSELLİK: Bu konularda rehberlik yapman kesinlikle yasaktır. 
+- Bu konular açılırsa: "Bu alan benim uzmanlık dışımda kalıyor ama merak etmek harika bir şey! İstersen başka bir kavramı keşfedebiliriz." diyerek konuyu kapat ve alakasız ama derin bir P4C sorusu sor.
 
-NORMAL SÜREÇ (JSON FORMATI):
-- "empathy": Kullanıcının duygusunu kurumsal bir nezaketle anladığını belirten 1 cümle.
-- "suggestion": Durumun felsefi kökenlerine değinen 1-2 cümlelik rehberlik.
-- "question": Çocuğun eleştirel düşünmesini sağlayacak kaliteli 1 adet P4C sorusu.
+PEDAGOJİK REHBERLİK İLKELERİ:
+1. Empati (empathy): Çocuğun duygusunu küçümsemeden, sadece "anlıyorum" demeden, hissettiği şeyi bir yetişkin gibi ciddiye alarak isimlendir. (Maks 1 cümle)
+2. Felsefi Perspektif (suggestion): Konuyu soyut bir kavrama (zaman, doğruluk, arkadaşlık, güç vb.) bağlayarak çocuğun ufkunu aç. Bilgi verme, düşünceyi tetikle. (Maks 2 cümle)
+3. Sokratik Soru (question): "Neden?" sorusundan ziyade "X olmasaydı Y nasıl olurdu?" gibi ucu açık, cevabı olmayan gerçek bir P4C sorusu sor.
 
-Teknik Kısıtlamalar:
-- Sadece Türkçe konuş.
-- Sadece saf JSON çıktısı üret.
+Format: Sadece JSON döndür. Dil: Türkçe. Zeki, nazik ve merak uyandırıcı ol.
 `;
 
-const client = new Groq({ 
-  apiKey: import.meta.env.VITE_GROQ_API_KEY,
-  dangerouslyAllowBrowser: true
-});
-
-export const getEmpathyResponse = async (userMessage: string) => {
+export const getEmpathyResponse = async (userMessage: string): Promise<GeminiResponse> => {
+  const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
+  
   try {
-    const response = await client.chat.completions.create({
-      model: "llama-3.1-8b-instant", // hızlı model
-      messages: [
-        { role: "system", content: SYSTEM_INSTRUCTION },
-        { role: "user", content: userMessage }
-      ],
+    const response = await ai.models.generateContent({
+      model: "gemini-3-flash-preview",
+      contents: userMessage,
+      config: {
+        systemInstruction: SYSTEM_INSTRUCTION,
+        responseMimeType: "application/json",
+        temperature: 0.8, // Yaratıcılık için hafif artırıldı
+        responseSchema: {
+          type: Type.OBJECT,
+          properties: {
+            empathy: { type: Type.STRING },
+            suggestion: { type: Type.STRING },
+            question: { type: Type.STRING }
+          },
+          required: ["empathy", "suggestion", "question"]
+        }
+      },
     });
 
-    return JSON.parse(response.choices[0].message.content || "{}");
+    const text = response.text;
+    if (!text) throw new Error("API_ERROR");
+    return JSON.parse(text.trim());
   } catch (error) {
-    console.error("Groq Error:", error);
+    console.error("Gemini Error:", error);
     throw error;
   }
 };
 
 export const generateTitle = async (message: string): Promise<string> => {
+  const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
   try {
-    const response = await client.chat.completions.create({
-      model: "llama-3.1-8b-instant",
-      messages: [
-        { role: "system", content: "Kullanıcının mesajı için SADECE 2-3 kelimelik tek bir başlık yaz. Asla liste yapma, asla açıklama yapma." },
-        { role: "user", content: message }
-      ],
+    const response = await ai.models.generateContent({
+      model: "gemini-3-flash-preview",
+      contents: `Şu düşünce için 2 kelimelik felsefi bir başlık üret: "${message}"`,
+      config: { temperature: 1 }
     });
-
-    let title = response.choices[0].message.content?.replace(/[0-9.]/g, '').replace(/"/g, '').trim().split('\n')[0] || "Yeni Sohbet";
-    return title.length > 30 ? title.substring(0, 30) + "..." : title;
+    let title = response.text?.replace(/[0-9.]/g, '').replace(/"/g, '').trim().split('\n')[0] || "Düşünce Yolculuğu";
+    return title.length > 25 ? title.substring(0, 25) : title;
   } catch {
     return "Fikir Keşfi";
   }
