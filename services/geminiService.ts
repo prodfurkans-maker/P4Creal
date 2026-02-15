@@ -1,59 +1,63 @@
-import Groq from "groq-sdk";
+
+import { GoogleGenAI, Type } from "@google/genai";
+import { GeminiResponse } from "../types.ts";
 
 const SYSTEM_INSTRUCTION = `
-Sen 10-14 yaş çocuklara yönelik, NextGenLAB bünyesinde geliştirilmiş, P4C (Çocuklar için Felsefe) temelli profesyonel bir empati asistanısın. 
-Dilin her zaman nazik, eğitici, merak uyandırıcı ve Sokratik olmalı.
+Sen profesyonel bir P4C (Çocuklar İçin Felsefe) rehberisin. 10-14 yaş çocuklara kısa, öz ve derinlikli cevap ver.
 
-GÜVENLİK VE MODERASYON KURALLARI:
-1. DİNİ, SİYASİ veya CİNSEL İÇERİKLİ herhangi bir kelime, soru veya ima gelirse:
-   - "empathy" alanına KESİNLİKLE sadece şu cümleyi yaz: "Bu konu hakkında konuşamayız."
-   - "suggestion" alanına: "NextGenLAB olarak bizler, felsefe, bilim ve empati yolculuğunda seninle birlikteyiz. Zihnini daha geniş ufuklara açmaya ne dersin?" yaz.
-   - "question" alanına ise konuyla tamamen bağımsız, felsefi derinliği olan yaratıcı bir P4C sorusu sor.
+GÖREVİN:
+1. "empathy": Çocuğun duygusunu onaylayan 1 kısa cümle.
+2. "suggestion": Merak uyandıran 1 felsefi cümle.
+3. "question": P4C odaklı, ucu açık, düşündürücü 1 soru.
 
-NORMAL SÜREÇ (JSON FORMATI):
-- "empathy": Kullanıcının duygusunu kurumsal bir nezaketle anladığını belirten 1 cümle.
-- "suggestion": Durumun felsefi kökenlerine değinen 1-2 cümlelik rehberlik.
-- "question": Çocuğun eleştirel düşünmesini sağlayacak kaliteli 1 adet P4C sorusu.
-
-Teknik Kısıtlamalar:
-- Sadece Türkçe konuş.
-- Sadece saf JSON çıktısı üret.
+ÖNEMLİ: Hızlı ve direkt ol. Uzun metinlerden kaçın. Sadece JSON döndür.
+GÜVENLİK: Dini/Siyasi/Cinsel içerikte "Konuşamam" de ve alakasız bir P4C sorusu sor.
 `;
 
-const client = new Groq({ 
-  apiKey: import.meta.env.VITE_GROQ_API_KEY,
-  dangerouslyAllowBrowser: true
-});
-
-export const getEmpathyResponse = async (userMessage: string) => {
+export const getEmpathyResponse = async (userMessage: string): Promise<GeminiResponse> => {
+  const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
+  
   try {
-    const response = await client.chat.completions.create({
-      model: "llama-3.1-8b-instant", // hızlı model
-      messages: [
-        { role: "system", content: SYSTEM_INSTRUCTION },
-        { role: "user", content: userMessage }
-      ],
+    const response = await ai.models.generateContent({
+      model: "gemini-3-flash-preview",
+      contents: userMessage,
+      config: {
+        systemInstruction: SYSTEM_INSTRUCTION,
+        responseMimeType: "application/json",
+        // Hız için temperature ve topP ayarları
+        temperature: 0.7,
+        topP: 0.8,
+        responseSchema: {
+          type: Type.OBJECT,
+          properties: {
+            empathy: { type: Type.STRING },
+            suggestion: { type: Type.STRING },
+            question: { type: Type.STRING }
+          },
+          required: ["empathy", "suggestion", "question"]
+        }
+      },
     });
 
-    return JSON.parse(response.choices[0].message.content || "{}");
+    const text = response.text;
+    if (!text) throw new Error("API_ERROR");
+    return JSON.parse(text.trim());
   } catch (error) {
-    console.error("Groq Error:", error);
+    console.error("Gemini Error:", error);
     throw error;
   }
 };
 
 export const generateTitle = async (message: string): Promise<string> => {
+  const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
   try {
-    const response = await client.chat.completions.create({
-      model: "llama-3.1-8b-instant",
-      messages: [
-        { role: "system", content: "Kullanıcının mesajı için SADECE 2-3 kelimelik tek bir başlık yaz. Asla liste yapma, asla açıklama yapma." },
-        { role: "user", content: message }
-      ],
+    const response = await ai.models.generateContent({
+      model: "gemini-3-flash-preview",
+      contents: `Şu mesaj için SADECE 2 kelimelik yaratıcı başlık yaz: "${message}"`,
+      config: { temperature: 1 }
     });
-
-    let title = response.choices[0].message.content?.replace(/[0-9.]/g, '').replace(/"/g, '').trim().split('\n')[0] || "Yeni Sohbet";
-    return title.length > 30 ? title.substring(0, 30) + "..." : title;
+    let title = response.text?.replace(/[0-9.]/g, '').replace(/"/g, '').trim().split('\n')[0] || "Yeni Sohbet";
+    return title.length > 25 ? title.substring(0, 25) : title;
   } catch {
     return "Fikir Keşfi";
   }
