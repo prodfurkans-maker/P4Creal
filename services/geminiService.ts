@@ -1,4 +1,4 @@
-import { GoogleGenerativeAI, SchemaType } from "@google/genai";
+import { GoogleGenerativeAI, SchemaType } from "@google/generative-ai";
 import { GeminiResponse } from "../types"; // uzantıyı kaldırdık
 
 const SYSTEM_INSTRUCTION = `
@@ -23,7 +23,7 @@ const ai = new GoogleGenerativeAI({
 export const getEmpathyResponse = async (userMessage: string): Promise<GeminiResponse> => {
   try {
     const model = ai.getGenerativeModel({
-      model: "gemini-3-flash", // artık v1 endpoint'te destekleniyor
+      model: "gemini-3-flash", // v1 endpoint'te destekleniyor
       generationConfig: {
         temperature: 0.75,
         responseMimeType: "application/json",
