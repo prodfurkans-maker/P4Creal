@@ -22,6 +22,12 @@ Teknik Kısıtlamalar:
 
 const ai = new GoogleGenAI({ apiKey: import.meta.env.VITE_GEMINI_API_KEY });
 
+// Model listesini görmek için test fonksiyonu
+export const listModels = async () => {
+  const models = await ai.models.list();
+  console.log("Aktif modeller:", models);
+};
+
 export const getEmpathyResponse = async (userMessage: string) => {
   try {
     const response = await ai.models.generateContent({
