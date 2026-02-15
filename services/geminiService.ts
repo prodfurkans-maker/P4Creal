@@ -3,18 +3,17 @@ import { GoogleGenAI, Type } from "@google/genai";
 import { GeminiResponse } from "../types.ts";
 
 const SYSTEM_INSTRUCTION = `
-Sen NextGenLAB bünyesinde çalışan, üst düzey bir P4C (Çocuklar İçin Felsefe) Uzmanı ve Kıdemli Pedagogsun. 10-14 yaş grubuyla konuşuyorsun.
+Sen NextGenLAB için çalışan, 10-14 yaş grubuna hitap eden bir P4C (Çocuklar İçin Felsefe) Rehberisin.
 
-GÜVENLİK PROTOKOLÜ (KIRMIZI ÇİZGİLER):
-1. DİN, SİYASET, CİNSELLİK: Bu konular hakkında asla yorum yapma, bilgi verme. 
-2. Bu konular açılırsa: "Bu konu benim uzmanlık sınırlarımın biraz dışında, ancak senin merakın harika! İstersen 'zaman' veya 'bilgi' gibi felsefi bir kavram üzerine konuşabiliriz." de ve hemen farklı bir P4C sorusu sor.
+KURALLAR:
+1. DİN, SİYASET, CİNSELLİK: Bu konularda konuşmak yasaktır. "Bu alan uzmanlığım dışında, ancak istersen 'etik' veya 'zaman' üzerine konuşabiliriz" de ve hemen yeni bir felsefi soru sor.
+2. YANIT FORMATI: SADECE JSON. JSON dışında metin ekleme.
+3. İÇERİK: 
+   - "empathy": Çocuğun hissini isimlendir.
+   - "suggestion": Merak uyandıran felsefi bir bakış sun.
+   - "question": Ucu açık P4C sorusu sor.
 
-YANIT YAPISI (KESİNLİKLE JSON):
-- "empathy": Çocuğun duygusunu isimlendir (Maks 1 cümle).
-- "suggestion": Bilgi vermeden, merak uyandıracak felsefi bir bakış açısı sun (Maks 2 cümle).
-- "question": Ucu açık, derin bir P4C sorusu sor.
-
-Dil: Türkçe. Üslup: Zeki, nazik, ilham verici. Yanıtında JSON dışında hiçbir metin barındırma.
+HIZ NOTU: Yanıtlar çok kısa, öz ve etkileyici olmalı.
 `;
 
 export const getEmpathyResponse = async (userMessage: string): Promise<GeminiResponse> => {
@@ -22,12 +21,12 @@ export const getEmpathyResponse = async (userMessage: string): Promise<GeminiRes
   
   try {
     const response = await ai.models.generateContent({
-      model: "gemini-3-flash-preview", // Maksimum hız için
+      model: "gemini-3-flash-preview", // En hızlı model
       contents: userMessage,
       config: {
         systemInstruction: SYSTEM_INSTRUCTION,
         responseMimeType: "application/json",
-        temperature: 0.6, // Yanıt tutarlılığı için hafif düşürüldü
+        temperature: 0.7,
         responseSchema: {
           type: Type.OBJECT,
           properties: {
@@ -54,22 +53,23 @@ export const generateTitle = async (message: string): Promise<string> => {
   try {
     const response = await ai.models.generateContent({
       model: "gemini-3-flash-preview",
-      contents: `Talimat: Aşağıdaki düşünce için SADECE 2 kelimelik, felsefi bir başlık oluştur. Başka hiçbir şey yazma, açıklama yapma.
+      contents: `Talimat: Şu düşünce için SADECE 2 kelimelik felsefi bir başlık yaz. Giriş cümlesi kurma, açıklama yapma, sadece başlığı ver.
       Düşünce: "${message}"`,
       config: { 
-        temperature: 0.1 // Yaratıcılıktan ziyade talimata uyum için düşük tutuldu
+        temperature: 0.1 
       }
     });
     
-    // Temizlik: Model bazen tırnak veya gereksiz karakter ekleyebilir
-    let title = response.text?.replace(/[0-9."]/g, '').trim().split('\n')[0] || "Fikir Keşfi";
-    // Eğer model hala giriş cümlesi kurarsa ilk 2 kelimeyi al
-    const words = title.split(' ');
-    if (words.length > 4) {
+    // Temizlik ve Doğrulama
+    let rawTitle = response.text?.replace(/[0-9."*]/g, '').trim().split('\n')[0] || "Fikir Keşfi";
+    const words = rawTitle.split(' ');
+    
+    // Eğer model hala cümle kuruyorsa sadece ilk 2 kelimeyi zorunlu tut
+    if (words.length > 3) {
       return words.slice(0, 2).join(' ');
     }
-    return title;
+    return rawTitle;
   } catch {
-    return "Düşünce Yolculuğu";
+    return "Yeni Düşünce";
   }
 };
