@@ -152,16 +152,16 @@ const App: React.FC = () => {
         {/* Dynamic Content Area */}
         <div ref={scrollRef} className="flex-1 overflow-y-auto no-scrollbar relative z-10 scroll-smooth h-full">
           {!activeSessionId ? (
-            <div className="h-full flex flex-col items-center justify-center pt-4 pb-6 md:py-16 px-6 max-w-5xl mx-auto overflow-hidden animate-in fade-in duration-1000">
+            <div className="h-full flex flex-col items-center justify-center pt-12 pb-6 md:py-16 px-6 max-w-5xl mx-auto overflow-hidden animate-in fade-in duration-1000">
               
-              {/* Logo Bölümü - Üstten ve alttan dikey boşluk ayarı */}
-              <div className="logo-container flex items-center gap-8 md:gap-20 p-5 md:p-12 rounded-[2.5rem] md:rounded-[5rem] shadow-xl transform scale-[0.85] md:scale-110 shrink-0 mt-2 md:mt-0 mb-8 md:mb-32 transition-all duration-500">
+              {/* Logo Bölümü - Mobil üst boşluk (pt-12) ve logo marjini (mt-8) artırıldı */}
+              <div className="logo-container flex items-center gap-8 md:gap-20 p-5 md:p-12 rounded-[2.5rem] md:rounded-[5rem] shadow-xl transform scale-[0.85] md:scale-110 shrink-0 mt-8 md:mt-0 mb-8 md:mb-32 transition-all duration-500">
                 <img src={LOGO_URL} alt="NextGen Lab Logo" className="w-16 h-16 md:w-36 md:h-36 object-contain" />
                 <div className="h-10 md:h-24 w-px bg-slate-200"></div>
                 <img src={SECOND_LOGO_URL} alt="Partner Logo" className="w-16 h-16 md:w-36 md:h-36 object-contain" />
               </div>
               
-              {/* Slogan Bölümü - Metinler güncellendi ve ferahlatıldı */}
+              {/* Slogan Bölümü */}
               <div className="space-y-6 md:space-y-16 text-center w-full shrink-0">
                 <h2 className="text-3xl md:text-8xl font-[950] text-slate-900 tracking-tightest leading-[1.1]">
                   Sor. Düşün.<br/> 
@@ -179,7 +179,7 @@ const App: React.FC = () => {
                 </div>
               </div>
 
-              {/* Öneriler - PC ve Mobil dikey dengesi */}
+              {/* Öneriler */}
               <div className="w-full grid grid-cols-1 md:grid-cols-2 gap-3 md:gap-10 mt-8 md:mt-24 shrink-0 max-w-lg md:max-w-4xl pb-2 md:pb-4">
                 <button 
                   onClick={() => handleSend("Hayal kurmak sence zihnimizin bir süper gücü müdür?")}
