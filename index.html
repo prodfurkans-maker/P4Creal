@@ -12,8 +12,8 @@
     <style>
       :root { 
         --app-height: 100dvh; 
-        --brand-indigo: #6366f1;
-        --brand-purple: #a855f7;
+        --brand-indigo: #818cf8;
+        --brand-purple: #c084fc;
       }
       html, body {
         padding: 0; margin: 0; width: 100%; height: 100%;
@@ -27,33 +27,35 @@
       .ethereal-bg {
         background: #0b0e14;
         background-image: 
-          radial-gradient(at 0% 0%, rgba(99, 102, 241, 0.15) 0px, transparent 50%),
-          radial-gradient(at 100% 0%, rgba(168, 85, 247, 0.15) 0px, transparent 50%),
-          radial-gradient(at 50% 50%, rgba(99, 102, 241, 0.05) 0px, transparent 80%);
+          radial-gradient(at 0% 0%, rgba(99, 102, 241, 0.2) 0px, transparent 50%),
+          radial-gradient(at 100% 0%, rgba(168, 85, 247, 0.2) 0px, transparent 50%),
+          radial-gradient(at 50% 100%, rgba(99, 102, 241, 0.1) 0px, transparent 70%);
         position: relative;
       }
 
-      /* Görseldeki o ince fütüristik dalgalar (Background Pattern) */
       .ethereal-bg::before {
         content: "";
         position: absolute;
         inset: 0;
-        background-image: url("data:image/svg+xml,%3Csvg width='1000' height='1000' viewBox='0 0 1000 1000' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M0 500 Q 250 400 500 500 T 1000 500' stroke='white' stroke-opacity='0.03' fill='transparent'/%3E%3Cpath d='M0 600 Q 250 500 500 600 T 1000 600' stroke='white' stroke-opacity='0.02' fill='transparent'/%3E%3C/svg%3E");
+        background-image: url("data:image/svg+xml,%3Csvg width='1000' height='1000' viewBox='0 0 1000 1000' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M0 500 Q 250 400 500 500 T 1000 500' stroke='white' stroke-opacity='0.05' fill='transparent'/%3E%3C/svg%3E");
         background-size: cover;
         pointer-events: none;
+        z-index: 0;
       }
 
-      .glass-container {
-        background: rgba(255, 255, 255, 0.02);
-        backdrop-filter: blur(40px) saturate(160%);
-        border: 1px solid rgba(255, 255, 255, 0.08);
-        box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.4);
+      .glass-card {
+        background: rgba(255, 255, 255, 0.04);
+        backdrop-filter: blur(50px) saturate(180%);
+        -webkit-backdrop-filter: blur(50px) saturate(180%);
+        border: 1px solid rgba(255, 255, 255, 0.12);
+        box-shadow: 0 12px 40px rgba(0, 0, 0, 0.5);
       }
 
       .glass-pill {
-        background: rgba(255, 255, 255, 0.04);
-        backdrop-filter: blur(12px);
-        border: 1px solid rgba(255, 255, 255, 0.1);
+        background: rgba(255, 255, 255, 0.08);
+        backdrop-filter: blur(15px);
+        -webkit-backdrop-filter: blur(15px);
+        border: 1px solid rgba(255, 255, 255, 0.15);
       }
 
       .no-scrollbar::-webkit-scrollbar { display: none; }
@@ -65,43 +67,37 @@
         -webkit-text-fill-color: transparent;
       }
 
-      .decorative-line {
+      .glow-divider {
         height: 1px;
-        background: linear-gradient(90deg, transparent, rgba(255,255,255,0.1), transparent);
-        width: 100%;
-        max-width: 200px;
-        margin: 0 auto;
+        background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
+        width: 80%;
+        margin: 1rem auto;
       }
 
       @keyframes float {
         0%, 100% { transform: translateY(0); }
         50% { transform: translateY(-8px); }
       }
-      .float-animation { animation: float 12s ease-in-out infinite; }
+      .float-animation { animation: float 8s ease-in-out infinite; }
 
-      .glow-button {
+      .main-cta {
         background: linear-gradient(135deg, #4f46e5, #9333ea);
-        box-shadow: 0 0 25px rgba(99, 102, 241, 0.25);
-        transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+        box-shadow: 0 0 25px rgba(99, 102, 241, 0.4);
+        transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
       }
-      .glow-button:hover {
-        box-shadow: 0 0 35px rgba(129, 140, 248, 0.4);
-        transform: translateY(-2px) scale(1.02);
-      }
+      .main-cta:active { transform: scale(0.96); }
     </style>
-    <script type="importmap">
-    {
-      "imports": {
-        "react": "https://esm.sh/react@18.2.0",
-        "react/": "https://esm.sh/react@18.2.0/",
-        "react-dom": "https://esm.sh/react-dom@18.2.0",
-        "react-dom/client": "https://esm.sh/react-dom@18.2.0/client",
-        "@google/genai": "https://esm.sh/@google/genai@1.41.0",
-        "react-dom/": "https://esm.sh/react-dom@18.2.0/"
-      }
-    }
-    </script>
-  </head>
+  <script type="importmap">
+{
+  "imports": {
+    "react-dom/": "https://esm.sh/react-dom@^19.2.4/",
+    "@google/genai": "https://esm.sh/@google/genai@^1.41.0",
+    "react/": "https://esm.sh/react@^19.2.4/",
+    "react": "https://esm.sh/react@^19.2.4"
+  }
+}
+</script>
+</head>
   <body>
     <div id="root"></div>
     <script type="module" src="./index.tsx"></script>
