@@ -20,7 +20,10 @@ Teknik Kısıtlamalar:
 - Sadece saf JSON çıktısı üret.
 `;
 
-const client = new Groq({ apiKey: import.meta.env.VITE_GROQ_API_KEY });
+const client = new Groq({ 
+  apiKey: import.meta.env.VITE_GROQ_API_KEY,
+  dangerouslyAllowBrowser: true
+});
 
 export const getEmpathyResponse = async (userMessage: string) => {
   try {
