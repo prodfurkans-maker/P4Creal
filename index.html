@@ -4,59 +4,35 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0, viewport-fit=cover" />
-    <title>NextGenLAB | Geleceğin Eğitimi</title>
+    <title>NextGenLAB | P4C Yapay Zeka</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&display=swap" rel="stylesheet">
     <style>
-      :root {
-        --app-height: 100%;
-      }
+      :root { --app-height: 100dvh; }
       html, body {
-        padding: 0;
-        margin: 0;
-        width: 100%;
-        height: 100%;
-        height: -webkit-fill-available;
-        overflow: hidden;
-        position: fixed;
+        padding: 0; margin: 0; width: 100%; height: 100%;
+        height: var(--app-height); overflow: hidden;
+        position: fixed; font-family: 'Inter', sans-serif;
+        background-color: #ffffff; -webkit-font-smoothing: antialiased;
+        touch-action: manipulation;
       }
-      body {
-        font-family: 'Inter', sans-serif;
-        background-color: #ffffff;
-        -webkit-font-smoothing: antialiased;
-        -moz-osx-font-smoothing: grayscale;
-        touch-action: pan-x pan-y;
-      }
-      #root {
-        height: 100%;
-        display: flex;
-        flex-direction: column;
-      }
+      #root { height: 100%; display: flex; flex-direction: column; }
       .mesh-bg {
         background-color: #fcfdfe;
         background-image: 
-          radial-gradient(at 0% 0%, rgba(99, 102, 241, 0.05) 0px, transparent 50%),
-          radial-gradient(at 100% 0%, rgba(59, 130, 246, 0.05) 0px, transparent 50%),
-          radial-gradient(at 100% 100%, rgba(99, 102, 241, 0.05) 0px, transparent 50%),
-          radial-gradient(at 0% 100%, rgba(59, 130, 246, 0.05) 0px, transparent 50%);
+          radial-gradient(at 0% 0%, rgba(99, 102, 241, 0.03) 0px, transparent 50%),
+          radial-gradient(at 100% 0%, rgba(59, 130, 246, 0.03) 0px, transparent 50%),
+          radial-gradient(at 100% 100%, rgba(99, 102, 241, 0.03) 0px, transparent 50%);
       }
-      input, textarea, select {
-        font-size: 16px !important;
-      }
-      .no-scrollbar::-webkit-scrollbar {
-        display: none;
-      }
-      .no-scrollbar {
-        -ms-overflow-style: none;
-        scrollbar-width: none;
-      }
+      .no-scrollbar::-webkit-scrollbar { display: none; }
+      .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
       .logo-container {
-        background: rgba(255, 255, 255, 0.7);
-        backdrop-filter: blur(16px);
-        border: 1px solid rgba(226, 232, 240, 0.8);
-        box-shadow: 0 20px 40px -20px rgba(0,0,0,0.08);
+        background: rgba(255, 255, 255, 0.8);
+        backdrop-filter: blur(20px);
+        border: 1px solid rgba(226, 232, 240, 0.5);
+        box-shadow: 0 20px 50px -20px rgba(0,0,0,0.05);
       }
     </style>
     <script type="importmap">
@@ -66,8 +42,8 @@
     "react/": "https://esm.sh/react@18.2.0/",
     "react-dom": "https://esm.sh/react-dom@18.2.0",
     "react-dom/client": "https://esm.sh/react-dom@18.2.0/client",
-    "react-dom/": "https://esm.sh/react-dom@18.2.0/",
-    "@google/genai": "https://esm.sh/@google/genai@1.41.0"
+    "@google/genai": "https://esm.sh/@google/genai@1.41.0",
+    "react-dom/": "https://esm.sh/react-dom@^19.2.4/"
   }
 }
 </script>
@@ -75,12 +51,5 @@
   <body>
     <div id="root"></div>
     <script type="module" src="./index.tsx"></script>
-    <script>
-      const updateHeight = () => {
-        document.documentElement.style.setProperty('--app-height', `${window.innerHeight}px`);
-      };
-      window.addEventListener('resize', updateHeight);
-      updateHeight();
-    </script>
   </body>
 </html>
