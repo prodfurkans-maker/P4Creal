@@ -50,7 +50,7 @@ export const generateTitle = async (message: string): Promise<string> => {
   try {
     const response = await ai.models.generateContent({
       model: "gemini-3-flash-preview",
-      contents: `Şu mesajı özetleyen SADECE 2 kelimelik, etkileyici bir başlık yaz: "${message}"`,
+      contents: `Şu kullanıcı mesajını özetleyen, mantıklı, profesyonel ve sadece 2-3 kelimelik bir başlık yaz. "Gönül yoklaması" veya "Selamlaşma" gibi saçma sapan veya çok jenerik ifadeler kullanma, içeriğe odaklan: "${message}"`,
       config: { temperature: 0.1 }
     });
     return response.text?.replace(/[0-9."*]/g, '').trim() || "Fikir Keşfi";
