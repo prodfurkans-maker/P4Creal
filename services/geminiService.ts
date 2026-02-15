@@ -25,7 +25,7 @@ const ai = new GoogleGenAI({ apiKey: import.meta.env.VITE_GEMINI_API_KEY });
 export const getEmpathyResponse = async (userMessage: string) => {
   try {
     const response = await ai.models.generateContent({
-      model: "models/gemini-1.5-flash", // doğru model adı
+      model: "gemini-1.5-flash", // sadeleştirilmiş doğru model adı
       contents: userMessage,
       config: {
         systemInstruction: SYSTEM_INSTRUCTION,
@@ -54,7 +54,7 @@ export const getEmpathyResponse = async (userMessage: string) => {
 export const generateTitle = async (message: string): Promise<string> => {
   try {
     const response = await ai.models.generateContent({
-      model: "models/gemini-1.5-flash", // burayı da değiştirdik
+      model: "gemini-1.5-flash", // burayı da sadeleştirdik
       contents: `Kullanıcının şu mesajı için SADECE 2-3 kelimelik tek bir başlık yaz. Asla liste yapma, asla açıklama yapma, sadece başlığı döndür: "${message}"`,
     });
 
