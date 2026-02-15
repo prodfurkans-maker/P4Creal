@@ -154,7 +154,7 @@ const App: React.FC = () => {
           {!activeSessionId ? (
             <div className="h-full flex flex-col items-center justify-center pt-12 pb-6 md:py-16 px-6 max-w-5xl mx-auto overflow-hidden animate-in fade-in duration-1000">
               
-              {/* Logo Bölümü - Mobil üst boşluk (pt-12) ve logo marjini (mt-8) artırıldı */}
+              {/* Logo Bölümü */}
               <div className="logo-container flex items-center gap-8 md:gap-20 p-5 md:p-12 rounded-[2.5rem] md:rounded-[5rem] shadow-xl transform scale-[0.85] md:scale-110 shrink-0 mt-8 md:mt-0 mb-8 md:mb-32 transition-all duration-500">
                 <img src={LOGO_URL} alt="NextGen Lab Logo" className="w-16 h-16 md:w-36 md:h-36 object-contain" />
                 <div className="h-10 md:h-24 w-px bg-slate-200"></div>
@@ -179,21 +179,22 @@ const App: React.FC = () => {
                 </div>
               </div>
 
-              {/* Öneriler */}
-              <div className="w-full grid grid-cols-1 md:grid-cols-2 gap-3 md:gap-10 mt-8 md:mt-24 shrink-0 max-w-lg md:max-w-4xl pb-2 md:pb-4">
+              {/* Öneriler - Etik kaldırıldı, Hayal Gücü motive edici metinle ortalandı */}
+              <div className="w-full flex justify-center mt-8 md:mt-24 shrink-0 max-w-lg md:max-w-3xl pb-2 md:pb-4">
                 <button 
-                  onClick={() => handleSend("Hayal kurmak sence zihnimizin bir süper gücü müdür?")}
-                  className="p-4 md:p-12 text-left bg-white border border-slate-100 rounded-[1.8rem] md:rounded-[3.5rem] hover:border-indigo-300 hover:shadow-2xl transition-all group active:scale-[0.96] shadow-sm"
+                  onClick={() => handleSend("Senin harika fikirlerin dünyayı daha güzel bir yer yapabilir! Bugün zihninde neler keşfetmek istersin?")}
+                  className="w-full p-6 md:p-14 text-center bg-white border border-slate-100 rounded-[1.8rem] md:rounded-[3.5rem] hover:border-indigo-300 hover:shadow-2xl transition-all group active:scale-[0.96] shadow-sm"
                 >
-                  <span className="block text-indigo-500 font-black text-[9px] md:text-sm uppercase tracking-widest mb-1.5 md:mb-6">Yaratıcılık</span>
-                  <p className="text-slate-800 font-bold text-sm md:text-2xl leading-snug">"Zihnimiz sınır tanımaz mı?"</p>
-                </button>
-                <button 
-                  onClick={() => handleSend("İyi bir insan olmayı sağlayan şey sadece yaptıklarımız mıdır?")}
-                  className="p-4 md:p-12 text-left bg-white border border-slate-100 rounded-[1.8rem] md:rounded-[3.5rem] hover:border-emerald-300 hover:shadow-2xl transition-all group active:scale-[0.96] shadow-sm"
-                >
-                  <span className="block text-emerald-500 font-black text-[9px] md:text-sm uppercase tracking-widest mb-1.5 md:mb-6">Etik</span>
-                  <p className="text-slate-800 font-bold text-sm md:text-2xl leading-snug">"İyilik eylemde midir?"</p>
+                  <span className="block text-indigo-500 font-black text-[9px] md:text-sm uppercase tracking-widest mb-2 md:mb-6">HAYAL GÜCÜ</span>
+                  <p className="text-slate-800 font-bold text-sm md:text-3xl leading-snug">
+                    "Senin harika fikirlerin dünyayı değiştirebilir! <br className="hidden md:block" /> Bugün birlikte neler keşfedelim?"
+                  </p>
+                  <div className="mt-4 md:mt-8 flex justify-center">
+                    <span className="text-[10px] md:text-sm text-indigo-400 font-bold uppercase tracking-widest flex items-center gap-2 group-hover:text-indigo-600 transition-colors">
+                      Keşfetmeye başla
+                      <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" className="md:w-5 md:h-5"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg>
+                    </span>
+                  </div>
                 </button>
               </div>
             </div>
