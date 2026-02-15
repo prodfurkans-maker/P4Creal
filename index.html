@@ -12,73 +12,81 @@
     <style>
       :root { 
         --app-height: 100dvh; 
-        --brand-indigo: #4f46e5;
-        --brand-purple: #9333ea;
-        --bg-light: #f8fafc;
+        --brand-indigo: #6366f1;
+        --brand-purple: #a855f7;
       }
       html, body {
         padding: 0; margin: 0; width: 100%; height: 100%;
         height: var(--app-height); overflow: hidden;
         position: fixed; font-family: 'Inter', sans-serif;
-        background-color: var(--bg-light); -webkit-font-smoothing: antialiased;
+        background-color: #0b0e14; -webkit-font-smoothing: antialiased;
         touch-action: manipulation;
-        color: #1e293b;
       }
       #root { height: 100%; display: flex; flex-direction: column; }
       
-      .premium-light-bg {
-        background-color: #fcfdfe;
+      .ethereal-bg {
+        background: #0b0e14;
         background-image: 
-          radial-gradient(at 0% 0%, rgba(99, 102, 241, 0.05) 0px, transparent 40%),
-          radial-gradient(at 100% 0%, rgba(168, 85, 247, 0.05) 0px, transparent 40%),
-          radial-gradient(at 50% 100%, #f1f5f9 0px, transparent 100%);
+          radial-gradient(at 0% 0%, rgba(99, 102, 241, 0.15) 0px, transparent 50%),
+          radial-gradient(at 100% 0%, rgba(168, 85, 247, 0.15) 0px, transparent 50%),
+          radial-gradient(at 50% 50%, rgba(99, 102, 241, 0.05) 0px, transparent 80%);
+        position: relative;
       }
 
-      .glass-card {
-        background: rgba(255, 255, 255, 0.85);
-        backdrop-filter: blur(20px) saturate(180%);
-        border: 1px solid rgba(255, 255, 255, 0.6);
-        box-shadow: 
-          0 4px 12px -1px rgba(0, 0, 0, 0.03),
-          0 10px 25px -3px rgba(0, 0, 0, 0.05);
+      /* Görseldeki o ince fütüristik dalgalar (Background Pattern) */
+      .ethereal-bg::before {
+        content: "";
+        position: absolute;
+        inset: 0;
+        background-image: url("data:image/svg+xml,%3Csvg width='1000' height='1000' viewBox='0 0 1000 1000' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M0 500 Q 250 400 500 500 T 1000 500' stroke='white' stroke-opacity='0.03' fill='transparent'/%3E%3Cpath d='M0 600 Q 250 500 500 600 T 1000 600' stroke='white' stroke-opacity='0.02' fill='transparent'/%3E%3C/svg%3E");
+        background-size: cover;
+        pointer-events: none;
       }
 
-      .ai-bubble {
-        background: white;
-        border: 1px solid #f1f5f9;
-        box-shadow: 0 4px 6px -1px rgba(0,0,0,0.01), 0 2px 4px -1px rgba(0,0,0,0.01);
+      .glass-container {
+        background: rgba(255, 255, 255, 0.02);
+        backdrop-filter: blur(40px) saturate(160%);
+        border: 1px solid rgba(255, 255, 255, 0.08);
+        box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.4);
+      }
+
+      .glass-pill {
+        background: rgba(255, 255, 255, 0.04);
+        backdrop-filter: blur(12px);
+        border: 1px solid rgba(255, 255, 255, 0.1);
       }
 
       .no-scrollbar::-webkit-scrollbar { display: none; }
       .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
 
-      .gradient-highlight {
-        background: linear-gradient(135deg, var(--brand-indigo), var(--brand-purple));
+      .gradient-text {
+        background: linear-gradient(135deg, #a5b4fc, #d8b4fe);
         -webkit-background-clip: text;
         -webkit-text-fill-color: transparent;
-        font-weight: 800;
       }
 
-      .input-glow:focus-within {
-        box-shadow: 0 0 0 4px rgba(79, 70, 229, 0.08);
-        border-color: rgba(79, 70, 229, 0.2);
+      .decorative-line {
+        height: 1px;
+        background: linear-gradient(90deg, transparent, rgba(255,255,255,0.1), transparent);
+        width: 100%;
+        max-width: 200px;
+        margin: 0 auto;
       }
 
-      @keyframes subtle-float {
+      @keyframes float {
         0%, 100% { transform: translateY(0); }
-        50% { transform: translateY(-5px); }
+        50% { transform: translateY(-8px); }
       }
-      .float-animation { animation: subtle-float 6s ease-in-out infinite; }
-      
-      .cta-premium {
-        background: white;
-        border: 1px solid #e2e8f0;
-        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+      .float-animation { animation: float 12s ease-in-out infinite; }
+
+      .glow-button {
+        background: linear-gradient(135deg, #4f46e5, #9333ea);
+        box-shadow: 0 0 25px rgba(99, 102, 241, 0.25);
+        transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
       }
-      .cta-premium:hover {
-        border-color: var(--brand-indigo);
-        box-shadow: 0 8px 20px -4px rgba(79, 70, 229, 0.1);
-        transform: translateY(-1px);
+      .glow-button:hover {
+        box-shadow: 0 0 35px rgba(129, 140, 248, 0.4);
+        transform: translateY(-2px) scale(1.02);
       }
     </style>
     <script type="importmap">

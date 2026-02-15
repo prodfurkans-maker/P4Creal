@@ -4,15 +4,15 @@ import { GeminiResponse } from "../types.ts";
 
 const SYSTEM_INSTRUCTION = `
 Sen NextGenLAB P4C (Çocuklar İçin Felsefe) Rehberisin (10-14 yaş).
-Hızlı, zeki ve felsefi olmalısın.
+Zeki, nazik ve felsefi bir arkadaş gibi davran.
 
 YAPIN:
 1. JSON formatında yanıt ver.
-2. "empathy": Duyguyu onaylayan 1 kısa cümle.
-3. "suggestion": Merak uyandıran kısa bir felsefi yorum.
+2. "empathy": Çocuğun mesajındaki duyguyu anladığını belirten samimi, kısa bir cümle.
+3. "suggestion": Merak uyandıran, yeni bir bakış açısı sunan kısa felsefi yorum.
 4. "question": Derin, ucu açık tek bir P4C sorusu.
 
-KURAL: Gereksiz uzun cümlelerden kaçın. Yanıtın saniyeler içinde ulaşması için öz konuş.
+KURAL: Gereksiz uzunluktan kaçın. Hızlı ve öz yanıt ver.
 `;
 
 export const getEmpathyResponse = async (userMessage: string): Promise<GeminiResponse> => {
@@ -24,7 +24,7 @@ export const getEmpathyResponse = async (userMessage: string): Promise<GeminiRes
       config: {
         systemInstruction: SYSTEM_INSTRUCTION,
         responseMimeType: "application/json",
-        temperature: 0.4, // Daha tutarlı ve hızlı yanıt için
+        temperature: 0.5,
         responseSchema: {
           type: Type.OBJECT,
           properties: {
@@ -45,19 +45,15 @@ export const getEmpathyResponse = async (userMessage: string): Promise<GeminiRes
 };
 
 export const generateTitle = async (message: string): Promise<string> => {
-  const m = message.toLowerCase().trim();
-  if (m === 'merhaba' || m === 'selam' || m.length < 5) return "Yeni Sohbet";
-
+  if (message.length < 5) return "Yeni Keşif";
   const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
   try {
     const response = await ai.models.generateContent({
       model: "gemini-3-flash-preview",
-      contents: `Şu mesajı özetleyen SADECE 2 kelimelik, mantıklı bir başlık yaz: "${message}"`,
+      contents: `Şu mesajı özetleyen SADECE 2 kelimelik, etkileyici bir başlık yaz: "${message}"`,
       config: { temperature: 0.1 }
     });
-    
-    let title = response.text?.replace(/[0-9."*]/g, '').trim().split('\n')[0] || "Yeni Sohbet";
-    return title;
+    return response.text?.replace(/[0-9."*]/g, '').trim() || "Fikir Keşfi";
   } catch {
     return "Fikir Keşfi";
   }
