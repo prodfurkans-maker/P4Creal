@@ -152,47 +152,47 @@ const App: React.FC = () => {
         {/* Dynamic Content Area */}
         <div ref={scrollRef} className="flex-1 overflow-y-auto no-scrollbar relative z-10 scroll-smooth h-full">
           {!activeSessionId ? (
-            <div className="h-full flex flex-col items-center justify-center pt-12 pb-6 md:py-16 px-6 max-w-5xl mx-auto overflow-hidden animate-in fade-in duration-1000">
+            <div className="min-h-full flex flex-col items-center justify-start md:justify-center pt-8 pb-12 md:py-16 px-6 max-w-5xl mx-auto overflow-x-hidden animate-in fade-in duration-1000">
               
-              {/* Logo Bölümü */}
-              <div className="logo-container flex items-center gap-8 md:gap-20 p-5 md:p-12 rounded-[2.5rem] md:rounded-[5rem] shadow-xl transform scale-[0.85] md:scale-110 shrink-0 mt-8 md:mt-0 mb-8 md:mb-32 transition-all duration-500">
-                <img src={LOGO_URL} alt="NextGen Lab Logo" className="w-16 h-16 md:w-36 md:h-36 object-contain" />
-                <div className="h-10 md:h-24 w-px bg-slate-200"></div>
-                <img src={SECOND_LOGO_URL} alt="Partner Logo" className="w-16 h-16 md:w-36 md:h-36 object-contain" />
+              {/* Logo Bölümü - PC ve Mobil Dengelemesi */}
+              <div className="logo-container flex items-center gap-8 md:gap-20 p-5 md:p-10 rounded-[2.5rem] md:rounded-[4rem] shadow-xl transform scale-[0.85] md:scale-100 shrink-0 mt-4 md:mt-0 mb-8 md:mb-16 transition-all duration-500">
+                <img src={LOGO_URL} alt="NextGen Lab Logo" className="w-14 h-14 md:w-28 md:h-28 object-contain" />
+                <div className="h-10 md:h-20 w-px bg-slate-200"></div>
+                <img src={SECOND_LOGO_URL} alt="Partner Logo" className="w-14 h-14 md:w-28 md:h-28 object-contain" />
               </div>
               
-              {/* Slogan Bölümü */}
-              <div className="space-y-6 md:space-y-16 text-center w-full shrink-0">
-                <h2 className="text-3xl md:text-8xl font-[950] text-slate-900 tracking-tightest leading-[1.1]">
+              {/* Slogan Bölümü - PC Font Boyutu md:text-6xl olarak revize edildi */}
+              <div className="space-y-6 md:space-y-12 text-center w-full shrink-0">
+                <h2 className="text-3xl md:text-6xl font-[950] text-slate-900 tracking-tightest leading-[1.1]">
                   Sor. Düşün.<br/> 
                   <span className="text-indigo-600">Yapay Zeka ile Keşfet.</span>
                 </h2>
-                <div className="space-y-4 md:space-y-8">
-                  <p className="text-slate-500 text-base md:text-3xl font-medium tracking-tight opacity-80 max-w-[280px] md:max-w-xl mx-auto leading-tight">
+                <div className="space-y-4 md:space-y-6">
+                  <p className="text-slate-500 text-base md:text-2xl font-medium tracking-tight opacity-80 max-w-[280px] md:max-w-xl mx-auto leading-tight">
                     "Yapay Zeka Çağında Düşünen Nesiller."
                   </p>
-                  <div className="inline-block bg-blue-50 border border-blue-100/50 px-5 md:px-12 py-1.5 md:py-3.5 rounded-full shadow-sm">
-                    <p className="text-blue-600 text-[8px] md:text-base font-black uppercase tracking-[0.2em] md:tracking-[0.45em] whitespace-nowrap">
+                  <div className="inline-block bg-blue-50 border border-blue-100/50 px-5 md:px-10 py-2 md:py-3 rounded-full shadow-sm">
+                    <p className="text-blue-600 text-[8px] md:text-sm font-black uppercase tracking-[0.2em] md:tracking-[0.4em] whitespace-nowrap">
                       P4C + YAPAY ZEKA = GELECEĞİN EĞİTİMİ
                     </p>
                   </div>
                 </div>
               </div>
 
-              {/* Öneriler - Etik kaldırıldı, Hayal Gücü motive edici metinle ortalandı */}
-              <div className="w-full flex justify-center mt-8 md:mt-24 shrink-0 max-w-lg md:max-w-3xl pb-2 md:pb-4">
+              {/* Öneriler - Hayal Gücü kartı her ekrana sığacak şekilde küçültüldü */}
+              <div className="w-full flex justify-center mt-8 md:mt-16 shrink-0 max-w-lg md:max-w-2xl pb-4">
                 <button 
                   onClick={() => handleSend("Senin harika fikirlerin dünyayı daha güzel bir yer yapabilir! Bugün zihninde neler keşfetmek istersin?")}
-                  className="w-full p-6 md:p-14 text-center bg-white border border-slate-100 rounded-[1.8rem] md:rounded-[3.5rem] hover:border-indigo-300 hover:shadow-2xl transition-all group active:scale-[0.96] shadow-sm"
+                  className="w-full p-5 md:p-10 text-center bg-white border border-slate-100 rounded-[2rem] md:rounded-[3rem] hover:border-indigo-300 hover:shadow-2xl transition-all group active:scale-[0.96] shadow-sm"
                 >
-                  <span className="block text-indigo-500 font-black text-[9px] md:text-sm uppercase tracking-widest mb-2 md:mb-6">HAYAL GÜCÜ</span>
-                  <p className="text-slate-800 font-bold text-sm md:text-3xl leading-snug">
+                  <span className="block text-indigo-500 font-black text-[9px] md:text-xs uppercase tracking-widest mb-2 md:mb-4">HAYAL GÜCÜ</span>
+                  <p className="text-slate-800 font-bold text-sm md:text-2xl leading-snug">
                     "Senin harika fikirlerin dünyayı değiştirebilir! <br className="hidden md:block" /> Bugün birlikte neler keşfedelim?"
                   </p>
-                  <div className="mt-4 md:mt-8 flex justify-center">
-                    <span className="text-[10px] md:text-sm text-indigo-400 font-bold uppercase tracking-widest flex items-center gap-2 group-hover:text-indigo-600 transition-colors">
+                  <div className="mt-4 md:mt-6 flex justify-center">
+                    <span className="text-[10px] md:text-xs text-indigo-400 font-bold uppercase tracking-widest flex items-center gap-2 group-hover:text-indigo-600 transition-colors">
                       Keşfetmeye başla
-                      <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" className="md:w-5 md:h-5"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg>
+                      <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" className="md:w-5 md:h-5"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg>
                     </span>
                   </div>
                 </button>
@@ -286,7 +286,7 @@ const App: React.FC = () => {
               </button>
             </div>
             
-            <div className="mt-2 md:mt-6 flex flex-col items-center gap-1.5 opacity-40">
+            <div className="mt-2 md:mt-4 flex flex-col items-center gap-1.5 opacity-40">
                <p className="text-center text-[7px] md:text-sm text-slate-400 font-black uppercase tracking-[0.4em] md:tracking-[0.6em] whitespace-nowrap">
                 NEXT GEN LAB • EMPATİ • FELSEFE
               </p>
