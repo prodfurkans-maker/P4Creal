@@ -1,5 +1,4 @@
-import { GoogleGenAI, Type } from "@google/genai";
-import { GeminiResponse } from "../types.ts";
+import Groq from "groq-sdk";
 
 const SYSTEM_INSTRUCTION = `
 Sen 10-14 yaş çocuklara yönelik, NextGenLAB bünyesinde geliştirilmiş, P4C (Çocuklar için Felsefe) temelli profesyonel bir empati asistanısın. 
@@ -21,45 +20,36 @@ Teknik Kısıtlamalar:
 - Sadece saf JSON çıktısı üret.
 `;
 
-export const getEmpathyResponse = async (userMessage: string): Promise<GeminiResponse> => {
-  const ai = new GoogleGenAI({ apiKey: import.meta.env.VITE_API_KEY });
-  
+const client = new Groq({ apiKey: import.meta.env.VITE_GROQ_API_KEY });
+
+export const getEmpathyResponse = async (userMessage: string) => {
   try {
-    const response = await ai.models.generateContent({
-      model: "gemini-3-flash-preview",
-      contents: userMessage,
-      config: {
-        systemInstruction: SYSTEM_INSTRUCTION,
-        responseMimeType: "application/json",
-        responseSchema: {
-          type: Type.OBJECT,
-          properties: {
-            empathy: { type: Type.STRING },
-            suggestion: { type: Type.STRING },
-            question: { type: Type.STRING }
-          },
-          required: ["empathy", "suggestion", "question"]
-        }
-      },
+    const response = await client.chat.completions.create({
+      model: "llama-3.1-8b-instant", // hızlı model
+      messages: [
+        { role: "system", content: SYSTEM_INSTRUCTION },
+        { role: "user", content: userMessage }
+      ],
     });
 
-    const text = response.text;
-    if (!text) throw new Error("API_ERROR");
-    return JSON.parse(text.trim());
+    return JSON.parse(response.choices[0].message.content || "{}");
   } catch (error) {
-    console.error("Gemini Error:", error);
+    console.error("Groq Error:", error);
     throw error;
   }
 };
 
 export const generateTitle = async (message: string): Promise<string> => {
-  const ai = new GoogleGenAI({ apiKey: import.meta.env.VITE_API_KEY });
   try {
-    const response = await ai.models.generateContent({
-      model: "gemini-3-flash-preview",
-      contents: `Kullanıcının şu mesajı için SADECE 2-3 kelimelik tek bir başlık yaz. Asla liste yapma, asla açıklama yapma, sadece başlığı döndür: "${message}"`,
+    const response = await client.chat.completions.create({
+      model: "llama-3.1-8b-instant",
+      messages: [
+        { role: "system", content: "Kullanıcının mesajı için SADECE 2-3 kelimelik tek bir başlık yaz. Asla liste yapma, asla açıklama yapma." },
+        { role: "user", content: message }
+      ],
     });
-    let title = response.text?.replace(/[0-9.]/g, '').replace(/"/g, '').trim().split('\n')[0] || "Yeni Sohbet";
+
+    let title = response.choices[0].message.content?.replace(/[0-9.]/g, '').replace(/"/g, '').trim().split('\n')[0] || "Yeni Sohbet";
     return title.length > 30 ? title.substring(0, 30) + "..." : title;
   } catch {
     return "Fikir Keşfi";
