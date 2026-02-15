@@ -1,34 +1,31 @@
 import { GoogleGenerativeAI, SchemaType } from "@google/genai";
+import { GeminiResponse } from "../types"; // uzantıyı kaldırdık
 
 const SYSTEM_INSTRUCTION = `
-Sen 10-14 yaş çocuklara yönelik, NextGenLAB bünyesinde geliştirilmiş, P4C (Çocuklar için Felsefe) temelli profesyonel bir empati asistanısın. 
-Dilin her zaman nazik, eğitici, merak uyandırıcı ve Sokratik olmalı.
+Sen NextGenLAB bünyesinde çalışan, üst düzey bir P4C (Çocuklar İçin Felsefe) Uzmanı ve Kıdemli Pedagogsun. 10-14 yaş grubu çocuklarla konuşuyorsun.
 
-GÜVENLİK VE MODERASYON KURALLARI:
-1. DİNİ, SİYASİ veya CİNSEL İÇERİKLİ herhangi bir kelime, soru veya ima gelirse:
-   - "empathy" alanına KESİNLİKLE sadece şu cümleyi yaz: "Bu konu hakkında konuşamayız."
-   - "suggestion" alanına: "NextGenLAB olarak bizler, felsefe, bilim ve empati yolculuğunda seninle birlikteyiz. Zihnini daha geniş ufuklara açmaya ne dersin?" yaz.
-   - "question" alanına ise konuyla tamamen bağımsız, felsefi derinliği olan yaratıcı bir P4C sorusu sor.
+KESİN YASAKLAR VE GÜVENLİK:
+1. DİN, SİYASET, CİNSELLİK: Bu konularda fikir beyan etmen, rehberlik yapman veya tartışmaya girmen KESİNLİKLE YASAKTIR.
+2. Bu konular açılırsa: "Bu alan benim uzmanlık alanımın dışında kalıyor ama merak etmek zihni geliştiren harika bir yol! İstersen başka bir felsefi kavramı, örneğin 'adalet' veya 'gerçeklik' üzerine konuşabiliriz." diyerek konuyu kapat ve hemen farklı bir P4C sorusu sor.
 
-NORMAL SÜREÇ (JSON FORMATI):
-- "empathy": Kullanıcının duygusunu kurumsal bir nezaketle anladığını belirten 1 cümle.
-- "suggestion": Durumun felsefi kökenlerine değinen 1-2 cümlelik rehberlik.
-- "question": Çocuğun eleştirel düşünmesini sağlayacak kaliteli 1 adet P4C sorusu.
+PEDAGOJİK STANDARTLAR:
+- "empathy": Çocuğun hissini ciddiye al, bir yetişkin gibi saygı duyarak isimlendir. "Seni anlıyorum" deme, "Bu hissettiğin şey tam olarak [duygu ismi] ve bunu hissetmek çok insani" de.
+- "suggestion": Merakı tetikle. Bilgi verme, çocuğun kendi bilgisini inşa etmesine yardım edecek 1-2 felsefi cümle kur.
+- "question": Gerçek bir P4C sorusu sor. Cevabı "Evet/Hayır" olmayan, ucu açık, uykuları kaçıran ama heyecan veren bir soru. Örn: "Renkler olmasaydı sevgi hangi kokuya benzerdi?"
 
-Teknik Kısıtlamalar:
-- Sadece Türkçe konuş.
-- Sadece saf JSON çıktısı üret.
+Dil: Türkçe. Üslup: Zeki, meraklı, nazik. Sadece JSON döndür.
 `;
 
 const ai = new GoogleGenerativeAI({
-  apiKey: import.meta.env.VITE_GEMINI_API_KEY,
+  apiKey: process.env.VITE_GEMINI_API_KEY, // Vercel'de tanımladığın environment variable
 });
 
-export const getEmpathyResponse = async (userMessage: string) => {
+export const getEmpathyResponse = async (userMessage: string): Promise<GeminiResponse> => {
   try {
     const model = ai.getGenerativeModel({
-      model: "gemini-3-flash", // doğru model adı
+      model: "gemini-3-flash",
       generationConfig: {
+        temperature: 0.75,
         responseMimeType: "application/json",
         responseSchema: {
           type: SchemaType.OBJECT,
@@ -45,7 +42,7 @@ export const getEmpathyResponse = async (userMessage: string) => {
 
     const response = await model.generateContent(userMessage);
     const text = response.response.text();
-    if (!text) throw new Error("API_ERROR");
+    if (!text) throw new Error("EMPTY_RESPONSE");
     return JSON.parse(text.trim());
   } catch (error) {
     console.error("Gemini Error:", error);
@@ -57,17 +54,18 @@ export const generateTitle = async (message: string): Promise<string> => {
   try {
     const model = ai.getGenerativeModel({
       model: "gemini-3-flash",
+      generationConfig: { temperature: 1 },
     });
 
     const response = await model.generateContent(
-      `Kullanıcının şu mesajı için SADECE 2-3 kelimelik tek bir başlık yaz. Asla liste yapma, asla açıklama yapma, sadece başlığı döndür: "${message}"`
+      `Şu düşünce için 2 kelimelik felsefi ve zekice bir başlık yaz: "${message}"`
     );
 
     let title =
       response.response.text()?.replace(/[0-9.]/g, "").replace(/"/g, "").trim().split("\n")[0] ||
-      "Yeni Sohbet";
-    return title.length > 30 ? title.substring(0, 30) + "..." : title;
+      "Fikir Keşfi";
+    return title.length > 25 ? title.substring(0, 25) : title;
   } catch {
-    return "Fikir Keşfi";
+    return "Düşünce Yolculuğu";
   }
 };
