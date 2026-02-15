@@ -17,60 +17,60 @@
         padding: 0; margin: 0; width: 100%; height: 100%;
         height: var(--app-height); overflow: hidden;
         position: fixed; font-family: 'Inter', sans-serif;
-        background-color: #02040a; -webkit-font-smoothing: antialiased;
+        background-color: #05070a; -webkit-font-smoothing: antialiased;
         touch-action: manipulation;
         color: white;
       }
       #root { height: 100%; display: flex; flex-direction: column; }
       
-      /* Derin ve Ahenkli Mesh Gradient Arka Plan */
+      /* Sanatsal Mesh Gradient Arka Plan */
       .ethereal-bg {
-        background: #02040a;
+        background-color: #05070a;
         background-image: 
-          radial-gradient(at 0% 0%, rgba(79, 70, 229, 0.2) 0px, transparent 50%),
-          radial-gradient(at 100% 0%, rgba(147, 51, 234, 0.2) 0px, transparent 50%),
-          radial-gradient(at 100% 100%, rgba(219, 39, 119, 0.1) 0px, transparent 50%),
-          radial-gradient(at 0% 100%, rgba(30, 64, 175, 0.15) 0px, transparent 50%),
-          radial-gradient(at 50% 50%, rgba(124, 58, 237, 0.05) 0px, transparent 80%);
+          radial-gradient(at 0% 0%, rgba(99, 102, 241, 0.3) 0px, transparent 50%),
+          radial-gradient(at 100% 0%, rgba(168, 85, 247, 0.3) 0px, transparent 50%),
+          radial-gradient(at 50% 100%, rgba(244, 114, 182, 0.15) 0px, transparent 50%),
+          radial-gradient(at 100% 100%, rgba(79, 70, 229, 0.2) 0px, transparent 50%),
+          radial-gradient(at 0% 100%, rgba(124, 58, 237, 0.2) 0px, transparent 50%);
         position: relative;
         overflow: hidden;
       }
 
-      /* Dekoratif Işık Hüzmesi */
+      /* Noise Effect for Texture */
       .ethereal-bg::before {
         content: "";
         position: absolute;
-        top: -10%; left: -10%; width: 120%; height: 120%;
-        background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 1000 1000' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.6' numOctaves='3'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.02'/%3E%3C/svg%3E");
+        inset: 0;
+        background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E");
+        opacity: 0.04;
         pointer-events: none;
+        z-index: 1;
       }
 
-      /* Ana Glass Card */
+      /* Mobilde Grileşmeyi Önleyen Koyu Cam Kartı */
       .glass-card {
-        background: rgba(255, 255, 255, 0.02);
+        background: rgba(10, 12, 18, 0.6);
         backdrop-filter: blur(40px) saturate(180%);
         -webkit-backdrop-filter: blur(40px) saturate(180%);
         border: 1px solid rgba(255, 255, 255, 0.1);
-        box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+        box-shadow: 0 40px 100px -20px rgba(0, 0, 0, 0.8);
       }
 
-      /* Mobil Görünürlük İçin Geliştirilmiş Deep Glass */
+      /* Ultra-Dark Glass - Grileşme Hatasını Çözen Sınıf */
       .deep-glass {
-        background: rgba(0, 0, 0, 0.4) !important;
-        backdrop-filter: blur(25px) !important;
-        -webkit-backdrop-filter: blur(25px) !important;
-        border: 1px solid rgba(255, 255, 255, 0.15) !important;
+        background: rgba(0, 0, 0, 0.6) !important;
+        backdrop-filter: blur(20px) saturate(150%) !important;
+        -webkit-backdrop-filter: blur(20px) saturate(150%) !important;
+        border: 1px solid rgba(255, 255, 255, 0.12) !important;
         color: white !important;
       }
 
-      .user-pill {
-        background: rgba(79, 70, 229, 0.2);
-        backdrop-filter: blur(20px);
-        border: 1px solid rgba(255, 255, 255, 0.1);
+      .user-bubble {
+        background: linear-gradient(135deg, rgba(79, 70, 229, 0.4), rgba(147, 51, 234, 0.4));
+        backdrop-filter: blur(10px);
+        border: 1px solid rgba(255, 255, 255, 0.15);
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
       }
-
-      .no-scrollbar::-webkit-scrollbar { display: none; }
-      .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
 
       .gradient-text {
         background: linear-gradient(135deg, #a5b4fc, #f472b6);
@@ -78,30 +78,33 @@
         -webkit-text-fill-color: transparent;
       }
 
-      @keyframes pulse-glow {
-        0%, 100% { box-shadow: 0 0 15px rgba(99, 102, 241, 0.3); }
-        50% { box-shadow: 0 0 25px rgba(99, 102, 241, 0.6); }
+      @keyframes aura-float {
+        0%, 100% { transform: translateY(0) scale(1); }
+        50% { transform: translateY(-15px) scale(1.02); }
       }
-      .glow-animation { animation: pulse-glow 3s ease-in-out infinite; }
+      .aura-anim { animation: aura-float 12s ease-in-out infinite; }
 
-      .main-cta {
-        background: linear-gradient(135deg, #6366f1, #a855f7);
+      .neon-btn {
+        background: linear-gradient(135deg, #4f46e5, #9333ea);
+        box-shadow: 0 0 20px rgba(99, 102, 241, 0.4), 0 0 40px rgba(168, 85, 247, 0.2);
         transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
       }
-      .main-cta:hover { transform: translateY(-2px); box-shadow: 0 10px 25px rgba(99, 102, 241, 0.4); }
-      .main-cta:active { transform: scale(0.95); }
+      .neon-btn:active { transform: scale(0.94); box-shadow: 0 0 10px rgba(99, 102, 241, 0.6); }
+
+      .no-scrollbar::-webkit-scrollbar { display: none; }
+      .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
     </style>
-  <script type="importmap">
-{
-  "imports": {
-    "react": "https://esm.sh/react@^19.2.4",
-    "react-dom/": "https://esm.sh/react-dom@^19.2.4/",
-    "react/": "https://esm.sh/react@^19.2.4/",
-    "@google/genai": "https://esm.sh/@google/genai@^1.41.0"
-  }
-}
-</script>
-</head>
+    <script type="importmap">
+    {
+      "imports": {
+        "react": "https://esm.sh/react@^19.2.4",
+        "react-dom/": "https://esm.sh/react-dom@^19.2.4/",
+        "react/": "https://esm.sh/react@^19.2.4/",
+        "@google/genai": "https://esm.sh/@google/genai@^1.41.0"
+      }
+    }
+    </script>
+  </head>
   <body>
     <div id="root"></div>
     <script type="module" src="./index.tsx"></script>
