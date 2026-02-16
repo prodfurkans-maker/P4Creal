@@ -2,11 +2,11 @@
 import React, { useState, useRef, useEffect } from 'react';
 import Sidebar from './components/Sidebar.tsx';
 import { Message, ChatSession } from './types.ts';
-import { getP4CResponse, generateTitle } from './services/geminiService.ts';
+import { getP4CStream, generateTitle, START_STORY } from './services/geminiService.ts';
 
 const App: React.FC = () => {
   const [sessions, setSessions] = useState<ChatSession[]>(() => {
-    const saved = localStorage.getItem('ng_v18_final');
+    const saved = localStorage.getItem('ng_v21_streaming');
     return saved ? JSON.parse(saved) : [];
   });
   const [activeSessionId, setActiveSessionId] = useState<string | null>(null);
@@ -23,18 +23,12 @@ const App: React.FC = () => {
   const SECOND_LOGO_URL = "https://lh3.googleusercontent.com/d/1IXK9E888uqex4wBK1VYBb6byBHFKRe3E";
 
   useEffect(() => {
-    localStorage.setItem('ng_v18_final', JSON.stringify(sessions));
+    localStorage.setItem('ng_v21_streaming', JSON.stringify(sessions));
   }, [sessions]);
 
-  // Faster scroll for real-time feel
   useEffect(() => {
-    if (activeSession?.messages?.length) {
-      const lastMsg = activeSession.messages[activeSession.messages.length - 1];
-      if (lastMsg.role === 'assistant' && lastAiMessageRef.current) {
-        lastAiMessageRef.current.scrollIntoView({ behavior: 'auto', block: 'start' });
-      } else if (scrollRef.current) {
-        scrollRef.current.scrollTo({ top: scrollRef.current.scrollHeight, behavior: 'auto' });
-      }
+    if (scrollRef.current) {
+      scrollRef.current.scrollTo({ top: scrollRef.current.scrollHeight, behavior: 'smooth' });
     }
   }, [activeSession?.messages, isLoading]);
 
@@ -69,31 +63,73 @@ const App: React.FC = () => {
     setInput('');
     setIsLoading(true);
 
+    const isFirstMsg = !activeSessionId || (activeSession?.messages.length === 0);
+    if (isFirstMsg) {
+      setTimeout(() => {
+        const aiMsg: Message = {
+          id: (Date.now() + 1).toString(),
+          role: 'assistant',
+          content: '',
+          timestamp: Date.now(),
+          data: {
+            storyContent: START_STORY,
+            reflection: "Herakles ve Atlas'ın bu devasa yük paylaşımı hakkında ne düşünüyorsun?",
+            question: "Sence Atlas gökyüzünü taşırken Herakles'e neden güvendi?"
+          }
+        };
+        setSessions(prev => prev.map(s => s.id === currentSessionId ? { ...s, messages: [...s.messages, aiMsg] } : s));
+        setIsLoading(false);
+      }, 100);
+      return;
+    }
+
     try {
-      const currentMessages = sessions.find(s => s.id === currentSessionId)?.messages || [];
-      const data = await getP4CResponse(messageText, currentMessages);
+      const aiMsgId = (Date.now() + 1).toString();
+      let fullText = "";
       
-      const aiMsg: Message = { 
-        id: (Date.now() + 1).toString(), 
+      const aiMsgPlaceholder: Message = { 
+        id: aiMsgId, 
         role: 'assistant', 
         content: '', 
         timestamp: Date.now(), 
-        data 
+        data: { reflection: "Düşünüyorum...", question: "..." } 
       };
 
-      setSessions(prev => prev.map(s => s.id === currentSessionId ? { ...s, messages: [...s.messages, aiMsg] } : s));
+      setSessions(prev => prev.map(s => s.id === currentSessionId ? { ...s, messages: [...s.messages, aiMsgPlaceholder] } : s));
+
+      const stream = getP4CStream(messageText, sessions.find(s => s.id === currentSessionId)?.messages || []);
       
-      // Async title generation - don't await this
-      if (currentMessages.length <= 1) {
-        generateTitle(data.question).then(t => {
-          setSessions(prev => prev.map(s => s.id === currentSessionId ? { ...s, title: t } : s));
+      for await (const chunk of stream) {
+        fullText += chunk;
+        const [reflection, question] = fullText.split("||").map(s => s.replace(/\[|\]/g, '').trim());
+        
+        setSessions(prev => prev.map(s => s.id === currentSessionId ? {
+          ...s,
+          messages: s.messages.map(m => m.id === aiMsgId ? {
+            ...m,
+            data: { reflection: reflection || m.data?.reflection || "...", question: question || m.data?.question || "..." }
+          } : m)
+        } : s));
+      }
+
+      // Generate title in background
+      if (sessions.find(s => s.id === currentSessionId)?.messages.length === 2) {
+        generateTitle(messageText).then(t => {
+           setSessions(prev => prev.map(s => s.id === currentSessionId ? { ...s, title: t } : s));
         });
       }
+
     } catch (err) {
       console.error(err);
     } finally {
       setIsLoading(false);
     }
+  };
+
+  const deleteSession = (e: React.MouseEvent, id: string) => {
+    e.stopPropagation();
+    setSessions(prev => prev.filter(s => s.id !== id));
+    if (activeSessionId === id) setActiveSessionId(null);
   };
 
   return (
@@ -102,10 +138,11 @@ const App: React.FC = () => {
         <div className="absolute inset-0 bg-slate-950/90 backdrop-blur-md lg:hidden" onClick={() => setIsSidebarOpen(false)}></div>
         <div className="relative w-72 h-full bg-slate-900/40 border-r border-white/5 backdrop-blur-xl">
           <Sidebar 
-            sessions={sessions} activeSessionId={activeSessionId}
+            sessions={sessions} 
+            activeSessionId={activeSessionId}
             onSelectSession={(id) => { setActiveSessionId(id); setIsSidebarOpen(false); }}
             onNewChat={() => { handleNewChat(); setIsSidebarOpen(false); }}
-            onDeleteSession={(e, id) => { e.stopPropagation(); setSessions(prev => prev.filter(s => s.id !== id)); if(activeSessionId === id) setActiveSessionId(null); }}
+            onDeleteSession={deleteSession}
           />
         </div>
       </div>
@@ -130,7 +167,7 @@ const App: React.FC = () => {
               </div>
             </div>
 
-            <button onClick={() => handleNewChat()} className="p-2 text-white/40 hover:text-white">
+            <button onClick={handleNewChat} className="p-2 text-white/40 hover:text-white">
               <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
             </button>
           </header>
@@ -172,27 +209,23 @@ const App: React.FC = () => {
                         <p className="text-sm md:text-xl leading-relaxed">{msg.content}</p>
                       ) : (
                         <div className="space-y-4 md:space-y-8" ref={idx === activeSession.messages.length - 1 ? lastAiMessageRef : null}>
-                          {msg.data?.storyContent && msg.data.storyContent.trim() !== "" && (
-                            <div className="bg-white/5 p-4 md:p-8 rounded-xl border border-white/5 shadow-inner">
-                              <label className="text-[7px] md:text-[9px] font-black text-sky-400 uppercase tracking-widest block mb-2 opacity-50">HİKAYE GEÇİDİ</label>
+                          {msg.data?.storyContent && (
+                            <div className="bg-white/5 p-4 md:p-8 rounded-xl border border-white/5 shadow-inner animate-in zoom-in-95 duration-500">
+                              <label className="text-[7px] md:text-[9px] font-black text-sky-400 uppercase tracking-widest block mb-2 opacity-50 italic">KADİM HİKAYE</label>
                               <p className="text-xs md:text-lg font-medium leading-relaxed italic text-slate-100">{msg.data.storyContent}</p>
                             </div>
                           )}
                           
-                          {msg.data?.reflection && (
-                            <div className="pl-3 border-l-2 border-indigo-500/40">
-                              <label className="text-[7px] md:text-[9px] font-black text-indigo-300 uppercase tracking-widest block mb-1 opacity-50">EĞİTMEN YANSITMASI</label>
-                              <p className="text-base md:text-xl font-black text-white leading-snug">"{msg.data.reflection}"</p>
-                            </div>
-                          )}
+                          <div className="pl-3 border-l-2 border-indigo-500/40">
+                            <label className="text-[7px] md:text-[9px] font-black text-indigo-300 uppercase tracking-widest block mb-1 opacity-50">YANSITMA</label>
+                            <p className="text-base md:text-xl font-black text-white leading-snug">"{msg.data?.reflection}"</p>
+                          </div>
 
-                          {msg.data?.question && (
-                            <div className="p-5 md:p-10 bg-indigo-500/10 border border-indigo-500/20 rounded-xl md:rounded-[3rem] relative overflow-hidden shadow-lg">
-                              <div className="absolute top-0 left-0 w-1.5 h-full bg-indigo-500"></div>
-                              <label className="text-[7px] md:text-[10px] font-black text-indigo-400 uppercase tracking-widest block mb-3">SORGULAMA SORUSU</label>
-                              <p className="text-lg md:text-3xl font-black text-white leading-snug tracking-tight">{msg.data.question}</p>
-                            </div>
-                          )}
+                          <div className="p-5 md:p-10 bg-indigo-500/10 border border-indigo-500/20 rounded-xl md:rounded-[3rem] relative overflow-hidden shadow-lg animate-in slide-in-from-left duration-700">
+                            <div className="absolute top-0 left-0 w-1.5 h-full bg-indigo-500"></div>
+                            <label className="text-[7px] md:text-[10px] font-black text-indigo-400 uppercase tracking-widest block mb-3">SORU</label>
+                            <p className="text-lg md:text-3xl font-black text-white leading-snug tracking-tight">{msg.data?.question}</p>
+                          </div>
                         </div>
                       )}
                     </div>
@@ -218,11 +251,6 @@ const App: React.FC = () => {
                   placeholder="Düşünceni buraya yaz..."
                   className="flex-1 max-h-24 md:max-h-32 py-2.5 px-3 md:px-8 bg-transparent border-none focus:ring-0 text-sm md:text-base font-bold text-white placeholder:text-white/20 resize-none no-scrollbar"
                   rows={1}
-                  onInput={(e) => {
-                    const target = e.target as HTMLTextAreaElement;
-                    target.style.height = 'auto';
-                    target.style.height = `${Math.min(target.scrollHeight, 100)}px`;
-                  }}
                 />
                 <button
                   onClick={() => handleSend()} disabled={!input.trim() || isLoading}
@@ -233,7 +261,7 @@ const App: React.FC = () => {
                   <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="4"><path d="m5 12 7-7 7 7"/><path d="M12 19V5"/></svg>
                 </button>
               </div>
-              <p className="text-[7px] md:text-[9px] text-white/10 text-center mt-2 uppercase tracking-[0.5em] font-black italic">REAL-TIME P4C ENGINE ACTIVE</p>
+              <p className="text-[7px] md:text-[9px] text-white/10 text-center mt-2 uppercase tracking-[0.5em] font-black italic">ULTRA-FAST P4C STREAMING ACTIVE</p>
             </footer>
           )}
         </div>
