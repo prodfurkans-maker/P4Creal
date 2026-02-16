@@ -16,17 +16,19 @@ const ResponseCard: React.FC<ResponseCardProps> = ({ response }) => {
             <h3 className="text-indigo-600 font-bold text-sm uppercase tracking-wider">Empati</h3>
           </div>
           <p className="text-lg md:text-xl text-slate-800 font-medium italic">
-            "{response.empathy}"
+            {/* Fix: Changed empathy to reflection as defined in GeminiResponse */}
+            "{response.reflection}"
           </p>
         </section>
 
         <section>
           <div className="flex items-center gap-2 mb-2">
             <span className="flex items-center justify-center w-6 h-6 rounded-full bg-green-100 text-green-700 text-xs font-bold">2</span>
-            <h3 className="text-green-600 font-bold text-sm uppercase tracking-wider">Öneri</h3>
+            <h3 className="text-green-600 font-bold text-sm uppercase tracking-wider">Hikaye</h3>
           </div>
           <p className="text-base text-slate-700 leading-relaxed">
-            {response.suggestion}
+            {/* Fix: Changed suggestion to storyContent with a fallback for optional field */}
+            {response.storyContent || "Hikaye devam ediyor..."}
           </p>
         </section>
 

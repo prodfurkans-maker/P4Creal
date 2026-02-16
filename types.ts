@@ -3,18 +3,18 @@ export enum Emotion {
   SAD = 'Üzgün',
   ANGRY = 'Öfkeli',
   LONELY = 'Yalnız',
-  CONFUSED = 'Kafası Karışık',
+  CONFUSED = 'Şaşkın'
 }
 
 export interface GeminiResponse {
-  empathy: string;
-  suggestion: string;
+  storyContent?: string;
+  reflection: string;
   question: string;
 }
 
 export interface Message {
   id: string;
-  role: 'user' | 'assistant';
+  role: 'user' | 'assistant' | 'system';
   content: string;
   timestamp: number;
   data?: GeminiResponse;
