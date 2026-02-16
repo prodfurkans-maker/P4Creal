@@ -2,22 +2,22 @@
 import { GoogleGenAI, Type } from "@google/genai";
 import { GeminiResponse, Message } from "../types.ts";
 
-const SYSTEM_INSTRUCTION = `Sen NextGenLAB için çalışan, dünyanın en iyi P4C (Philosophy for Children) kolaylaştırıcısısın. 
+const SYSTEM_INSTRUCTION = `Sen NextGenLAB için çalışan, dünyanın en hızlı ve etkili P4C (Philosophy for Children) kolaylaştırıcısısın. 
 
 HİKAYE KURALLARI:
-- storyContent: Sadece ilk turda hikayeyi Atlas'ın teklifine kadar anlat. Sonraki turlarda MUTLAKA boş string ("") döndür.
+- storyContent: Sadece ilk mesajda hikayeyi Atlas'ın teklifine kadar anlat. Sonraki tüm turlarda bu alanı boş bırak ("").
 
-DİYALOG VE MANTIK KURALLARI:
-1. Kullanıcının cevabını çok kısa ve derin bir şekilde analiz et (Reflection).
-2. Her turda FARKLI bir felsefi tema seç (Adalet, Özgürlük, Gerçeklik, Bilgi, Etik).
-3. Sorular (Question) asla jenerik olmamalı. Kullanıcının spesifik argümanını sarsacak veya derinleştirecek "Gedankenexperiment" (Düşünce Deneyi) tadında sorular sor.
-4. Yanıtların çok hızlı, mantıklı ve çocukların (10-14 yaş) anlayabileceği ama onları ciddiye alan bir dilde olmalı.
+DİYALOG VE HIZ KURALLARI:
+1. Kullanıcının cevabını çok kısa, vurucu ve derin bir şekilde yansıt (Reflection).
+2. Her turda benzersiz bir felsefi tema (Etik, Bilgi, Varlık, Mantık) üzerinden ilerle.
+3. Soruların (Question) çocukların zihninde şimşek çaktıracak kadar derin ama anlaşılır olsun.
+4. ÇIKTIYI ANINDA ÜRET. Gereksiz kelime kalabalığından kaçın, doğrudan felsefi öze odaklan.
 
 JSON FORMATI:
 {
   "storyContent": "...",
-  "reflection": "Kullanıcıya ayna tutan felsefi cümle.",
-  "question": "Vurucu P4C sorusu."
+  "reflection": "Kullanıcının fikrine ayna tutan öz cümle.",
+  "question": "Düşündürücü P4C sorusu."
 }`;
 
 export const getP4CResponse = async (userMessage: string, chatHistory: Message[]): Promise<GeminiResponse> => {
@@ -31,18 +31,18 @@ export const getP4CResponse = async (userMessage: string, chatHistory: Message[]
 
   contents.push({
     role: 'user',
-    parts: [{ text: isFirstTurn ? "Altın Elmalar hikayesiyle P4C yolculuğunu başlat." : userMessage }]
+    parts: [{ text: isFirstTurn ? "Altın Elmalar hikayesini anlat ve P4C sorgulamasını başlat." : userMessage }]
   });
 
   try {
     const response = await ai.models.generateContent({
-      model: "gemini-3-flash-preview", // Maksimum hız için Flash
+      model: "gemini-3-flash-preview", 
       contents: contents,
       config: {
         systemInstruction: SYSTEM_INSTRUCTION,
         responseMimeType: "application/json",
-        temperature: 0.6,
-        thinkingConfig: { thinkingBudget: 0 }, // Düşünme süresini kapat, anında cevap ver
+        temperature: 0.7,
+        thinkingConfig: { thinkingBudget: 0 }, // Maksimum hız için düşünme süresini kapat
         responseSchema: {
           type: Type.OBJECT,
           properties: {
@@ -59,7 +59,7 @@ export const getP4CResponse = async (userMessage: string, chatHistory: Message[]
     if (!isFirstTurn) data.storyContent = "";
     return data;
   } catch (error) {
-    console.error("Gemini Speed Error:", error);
+    console.error("Hız Hatası:", error);
     throw error;
   }
 };
@@ -69,8 +69,8 @@ export const generateTitle = async (message: string): Promise<string> => {
   try {
     const response = await ai.models.generateContent({
       model: "gemini-3-flash-preview",
-      contents: `Bu sorgulama için 2 kelimelik başlık koy: "${message}"`,
-      config: { temperature: 0.1 }
+      contents: `Bu diyaloğa 2 kelimelik başlık koy: "${message}"`,
+      config: { temperature: 0.1, thinkingConfig: { thinkingBudget: 0 } }
     });
     return response.text?.replace(/[0-9."*]/g, '').trim() || "Fikir Keşfi";
   } catch {
