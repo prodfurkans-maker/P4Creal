@@ -4,15 +4,15 @@ import { GeminiResponse } from "../types.ts";
 
 const SYSTEM_INSTRUCTION = `
 Sen NextGenLAB P4C (Çocuklar İçin Felsefe) Rehberisin (10-14 yaş).
-Zeki, nazik ve felsefi bir arkadaş gibi davran.
+Hızlı, zeki ve felsefi bir arkadaş gibi davran.
 
 YAPIN:
-1. JSON formatında yanıt ver.
-2. "empathy": Çocuğun mesajındaki duyguyu anladığını belirten samimi, kısa bir cümle.
-3. "suggestion": Merak uyandıran, yeni bir bakış açısı sunan kısa felsefi yorum.
+1. JSON formatında, çok kısa ve öz yanıt ver.
+2. "empathy": Duyguyu anladığını belirten 1 cümle.
+3. "suggestion": Merak uyandıran kısa felsefi ışık.
 4. "question": Derin, ucu açık tek bir P4C sorusu.
 
-KURAL: Gereksiz uzunluktan kaçın. Hızlı ve öz yanıt ver.
+KURAL: Gereksiz kelimelerden kaçın. Hız ve mantık öncelikli.
 `;
 
 export const getEmpathyResponse = async (userMessage: string): Promise<GeminiResponse> => {
@@ -24,7 +24,8 @@ export const getEmpathyResponse = async (userMessage: string): Promise<GeminiRes
       config: {
         systemInstruction: SYSTEM_INSTRUCTION,
         responseMimeType: "application/json",
-        temperature: 0.5,
+        temperature: 0.4, // Daha tutarlı ve hızlı yanıtlar için düşürüldü
+        thinkingConfig: { thinkingBudget: 0 }, // Düşünme gecikmesini iptal et, doğrudan cevap ver
         responseSchema: {
           type: Type.OBJECT,
           properties: {
@@ -50,12 +51,15 @@ export const generateTitle = async (message: string): Promise<string> => {
   try {
     const response = await ai.models.generateContent({
       model: "gemini-3-flash-preview",
-      contents: `Şu mesajın özünü yansıtan, profesyonel, ciddi ve sadece 2-3 kelimelik bir sohbet başlığı yaz. "Selam", "Naber", "Gönül yoklaması" gibi ifadeler kullanma. Konu odaklı ol: "${message}"`,
-      config: { temperature: 0.1 }
+      contents: `Bu mesajın konusunu 2 kelimeyle özetle. Ciddi ve mantıklı ol. "Selam" veya saçma ifadeler kullanma: "${message}"`,
+      config: { 
+        temperature: 0.1,
+        thinkingConfig: { thinkingBudget: 0 } 
+      }
     });
     let title = response.text?.replace(/[0-9."*]/g, '').trim() || "Felsefi Keşif";
-    return title.length > 25 ? title.substring(0, 22) + "..." : title;
+    return title.length > 20 ? title.substring(0, 17) + "..." : title;
   } catch {
-    return "Yeni Sohbet";
+    return "Fikir Keşfi";
   }
 };
