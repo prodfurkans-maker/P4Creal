@@ -6,7 +6,7 @@ import { getP4CResponse, generateTitle } from './services/geminiService.ts';
 
 const App: React.FC = () => {
   const [sessions, setSessions] = useState<ChatSession[]>(() => {
-    const saved = localStorage.getItem('ng_sessions_v14_p4c');
+    const saved = localStorage.getItem('ng_p4c_v15');
     return saved ? JSON.parse(saved) : [];
   });
   const [activeSessionId, setActiveSessionId] = useState<string | null>(null);
@@ -23,7 +23,7 @@ const App: React.FC = () => {
   const SECOND_LOGO_URL = "https://lh3.googleusercontent.com/d/1IXK9E888uqex4wBK1VYBb6byBHFKRe3E";
 
   useEffect(() => {
-    localStorage.setItem('ng_sessions_v14_p4c', JSON.stringify(sessions));
+    localStorage.setItem('ng_p4c_v15', JSON.stringify(sessions));
   }, [sessions]);
 
   useEffect(() => {
@@ -50,7 +50,7 @@ const App: React.FC = () => {
     const userMsg: Message = {
       id: Date.now().toString(),
       role: 'user',
-      content: messageText || "Hadi Keşfedelim!",
+      content: messageText || "Hadi başlayalım!",
       timestamp: Date.now()
     };
 
@@ -96,7 +96,6 @@ const App: React.FC = () => {
 
   return (
     <div className="flex w-full ethereal-bg h-full overflow-hidden font-sans text-slate-100">
-      {/* Sidebar Mobile Overlay */}
       <div className={`fixed inset-0 z-50 lg:relative lg:flex lg:inset-auto ${isSidebarOpen ? 'flex' : 'hidden'}`}>
         <div className="absolute inset-0 bg-slate-950/90 backdrop-blur-md lg:hidden" onClick={() => setIsSidebarOpen(false)}></div>
         <div className="relative w-72 h-full bg-slate-900/40 border-r border-white/5 backdrop-blur-xl">
@@ -232,7 +231,7 @@ const App: React.FC = () => {
                   <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="4"><path d="m5 12 7-7 7 7"/><path d="M12 19V5"/></svg>
                 </button>
               </div>
-              <p className="text-[7px] md:text-[9px] text-white/10 text-center mt-2 uppercase tracking-[0.5em] font-black italic">ULTRA SPEED ACTIVE</p>
+              <p className="text-[7px] md:text-[9px] text-white/10 text-center mt-2 uppercase tracking-[0.5em] font-black italic">ULTRA SPEED ENGINE ACTIVE</p>
             </footer>
           )}
         </div>
