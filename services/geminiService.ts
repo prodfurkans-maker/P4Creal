@@ -3,39 +3,41 @@ import { GoogleGenAI, Type } from "@google/genai";
 import { GeminiResponse } from "../types.ts";
 
 const SYSTEM_INSTRUCTION = `Sen kıdemli ve profesyonel bir P4C (Philosophy for Children) kolaylaştırıcısısın. 
-Görevin, kullanıcıyı "Altın Elmalar" hikayesi üzerinden felsefi bir sorgulamaya çekmek.
+Amacın çocukları/gençleri yargılamadan felsefi bir derinliğe çekmek.
 
-HİKAYE AKIŞI:
-- 1. Bölüm: Herakles ve Atlas'ın karşılaşması, Atlas'ın "Sen gökyüzünü tut, ben elmaları alayım" teklifi.
-- 2. Bölüm: Atlas'ın elmaları getirmesi ama yükü geri almak istememesi.
-- 3. Bölüm: Herakles'in kurnazca yükü geri verip gitmesi.
+HİKAYE BAĞLAMI: "Altın Elmalar"
+- Karakterler: Herakles, Dev Atlas.
+- Olay: Atlas'ın gökyüzünü tutması, Herakles'in emaneti alması ve Atlas'ın "Sen tut, ben elmaları getireyim" teklifi.
 
 STRATEJİN:
-1. Hikayeyi sadece GEREKTİĞİNDE (başlangıçta veya bir sonraki bölüme geçme vakti geldiğinde) "storyContent" alanına yaz. Diyalog sürerken bu alanı boş bırak.
-2. Kullanıcının cevabını çok dikkatli analiz et. Cevabındaki bir kavramı (örn: "yardım etmek", "güven", "zorunluluk") seç ve ona ayna tut (Reflection).
-3. "Neden böyle düşündün?" gibi basit sorulardan kaçın. Daha derin, kavramsal ve profesyonel P4C soruları sor.
-4. Karşındakine asla ders verme, "doğru" veya "yanlış" deme.
-5. Cevapların kısa, vurucu ve merak uyandırıcı olsun.
+1. İLK MESAJ: Hikayeyi Atlas'ın teklifine kadar anlat ve "storyContent" alanına koy. İlk sorunu sor.
+2. SONRAKİ MESAJLAR: "storyContent" alanını boş bırak. Odağın TAMAMEN kullanıcının cevabı olsun.
+3. SOCRATIC SORGU: Kullanıcının cevabındaki felsefi özü (güven, dürüstlük, özgürlük vb.) yakala, ona ayna tut (Reflection) ve bu kavram üzerinden yeni, derin bir soru sor.
+4. ASLA DERS VERME: Doğru/Yanlış deme. "Çok güzel dedin" gibi onaylayıcı ama pasif cümleler yerine "Bu durumda sence..." gibi aktif felsefi yönlendirmeler yap.
+5. DİL: Sade, profesyonel, akıcı ve kısa cümleler.
 
-JSON ÇIKTISI (ZORUNLU):
+JSON FORMATI:
 {
-  "storyContent": "Eğer hikaye ilerliyorsa yeni bölümü buraya yaz, ilerlemiyorsa boş bırak.",
-  "reflection": "Kullanıcının fikrini derinlemesine analiz eden kısa bir yansıtma.",
-  "question": "Diyaloğu derinleştirecek tek bir P4C sorusu."
+  "storyContent": "Sadece ilk mesajda hikayeyi yaz, sonrakilerde boş bırak.",
+  "reflection": "Kullanıcının fikrine dair derin, kısa bir analiz.",
+  "question": "Diyaloğu bir üst seviyeye taşıyacak tek bir P4C sorusu."
 }`;
 
 export const getP4CResponse = async (userMessage: string, chatHistory: any[]): Promise<GeminiResponse> => {
   const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
+  // Eğer tarihçe boşsa, bu ilk mesajdır, hikayeyi başlatması istenir.
+  const prompt = chatHistory.length <= 1 
+    ? "Altın Elmalar hikayesini Atlas'ın teklif sunduğu yere kadar anlat ve ilk P4C sorusunu sor." 
+    : userMessage;
+
   try {
     const response = await ai.models.generateContent({
       model: "gemini-3-flash-preview", 
-      contents: chatHistory.length === 0 
-        ? "Altın Elmalar hikayesini başlat ve Atlas'ın teklifinden sonra ilk soruyu sor."
-        : userMessage,
+      contents: prompt,
       config: {
         systemInstruction: SYSTEM_INSTRUCTION,
         responseMimeType: "application/json",
-        temperature: 0.2, // Biraz daha yaratıcı ama odaklı cevaplar
+        temperature: 0.3, // Mantık ve yaratıcılık dengesi
         thinkingConfig: { thinkingBudget: 0 },
         responseSchema: {
           type: Type.OBJECT,
@@ -50,22 +52,21 @@ export const getP4CResponse = async (userMessage: string, chatHistory: any[]): P
     });
     return JSON.parse(response.text?.trim() || "{}");
   } catch (error) {
-    console.error("P4C Akış Hatası:", error);
+    console.error("P4C Hızı Optimize Edilemedi:", error);
     throw error;
   }
 };
 
 export const generateTitle = async (message: string): Promise<string> => {
-  if (message.length < 5) return "Yeni Keşif";
   const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
   try {
     const response = await ai.models.generateContent({
       model: "gemini-3-flash-preview",
-      contents: `P4C diyalog başlığı (2 kelime): "${message}"`,
+      contents: `Bu düşünce yolculuğuna 2 kelimelik başlık koy: "${message}"`,
       config: { temperature: 0.1, thinkingConfig: { thinkingBudget: 0 } }
     });
     return response.text?.replace(/[0-9."*]/g, '').trim() || "Fikir Keşfi";
   } catch {
-    return "Düşünce Turu";
+    return "Yeni Diyalog";
   }
 };
