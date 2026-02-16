@@ -6,7 +6,7 @@ import { getP4CStream, generateTitle, START_STORY } from './services/geminiServi
 
 const App: React.FC = () => {
   const [sessions, setSessions] = useState<ChatSession[]>(() => {
-    const saved = localStorage.getItem('ng_v22_ultra');
+    const saved = localStorage.getItem('ng_v23_final');
     return saved ? JSON.parse(saved) : [];
   });
   const [activeSessionId, setActiveSessionId] = useState<string | null>(null);
@@ -15,14 +15,13 @@ const App: React.FC = () => {
   const [isLoading, setIsLoading] = useState(false);
   
   const scrollRef = useRef<HTMLDivElement>(null);
-
   const activeSession = sessions.find(s => s.id === activeSessionId);
   
   const LOGO_URL = "https://lh3.googleusercontent.com/d/1iuS4shzoEIy9xsMHhm7AUyMKmuZ9WCgp";
   const SECOND_LOGO_URL = "https://lh3.googleusercontent.com/d/1IXK9E888uqex4wBK1VYBb6byBHFKRe3E";
 
   useEffect(() => {
-    localStorage.setItem('ng_v22_ultra', JSON.stringify(sessions));
+    localStorage.setItem('ng_v23_final', JSON.stringify(sessions));
   }, [sessions]);
 
   useEffect(() => {
@@ -62,21 +61,23 @@ const App: React.FC = () => {
     setInput('');
     setIsLoading(true);
 
-    // FIRST TURN - ABSOLUTELY INSTANT
-    if (!activeSessionId || activeSession?.messages.length === 0) {
-      const aiMsg: Message = {
-        id: `ai-${Date.now()}`,
-        role: 'assistant',
-        content: '',
-        timestamp: Date.now(),
-        data: {
-          storyContent: START_STORY,
-          reflection: "Herakles ve Atlas'ın bu devasa yük paylaşımı hakkında ne düşünüyorsun?",
-          question: "Sence Atlas gökyüzünü taşırken Herakles'e neden güvendi?"
-        }
-      };
-      setSessions(prev => prev.map(s => s.id === currentSessionId ? { ...s, messages: [...s.messages, aiMsg] } : s));
-      setIsLoading(false);
+    // FIRST TURN - INSTANT BYPASS
+    if (!activeSessionId || (activeSession && activeSession.messages.length === 0)) {
+      setTimeout(() => {
+        const aiMsg: Message = {
+          id: `ai-${Date.now()}`,
+          role: 'assistant',
+          content: '',
+          timestamp: Date.now(),
+          data: {
+            storyContent: START_STORY,
+            reflection: "Herakles ve Atlas'ın bu devasa yük paylaşımı hakkında ne düşünüyorsun?",
+            question: "Sence Atlas gökyüzünü taşırken Herakles'e neden güvendi?"
+          }
+        };
+        setSessions(prev => prev.map(s => s.id === currentSessionId ? { ...s, messages: [...s.messages, aiMsg] } : s));
+        setIsLoading(false);
+      }, 50);
       return;
     }
 
@@ -84,7 +85,6 @@ const App: React.FC = () => {
       const aiMsgId = `ai-${Date.now()}`;
       let fullText = "";
       
-      // AI Mesajını anında oluştur (içi boş ama görünür)
       const aiMsgPlaceholder: Message = { 
         id: aiMsgId, 
         role: 'assistant', 
@@ -111,7 +111,6 @@ const App: React.FC = () => {
           } : m)
         } : s));
       }
-
     } catch (err) {
       console.error(err);
     } finally {
@@ -134,7 +133,7 @@ const App: React.FC = () => {
       </div>
 
       <main className="flex-1 flex flex-col items-center p-0 md:p-4 relative z-10 h-full overflow-hidden">
-        <div className="w-full max-w-4xl h-full flex flex-col md:glass-card md:rounded-[2rem] overflow-hidden bg-slate-900/40 border-white/5 shadow-2xl">
+        <div className="w-full max-w-4xl h-full flex flex-col md:glass-card md:rounded-[2rem] overflow-hidden bg-slate-900/40 border-white/5 shadow-2xl transition-all duration-300">
           
           <header className="flex items-center justify-between px-4 py-2 md:px-8 md:py-4 shrink-0 z-30 border-b border-white/5 backdrop-blur-md">
             <button onClick={() => setIsSidebarOpen(true)} className="p-2 text-white/40 hover:text-white transition-colors">
@@ -165,12 +164,18 @@ const App: React.FC = () => {
                     <span className="gradient-text">Yapay Zeka</span> ile<br/> 
                     Keşfet.
                   </h2>
-                  <button 
-                    onClick={() => handleSend("Keşfe başlayalım!")}
-                    className="glow-button px-10 py-4 md:px-16 md:py-6 rounded-full text-white font-black text-xs md:text-2xl transition-transform active:scale-95 shadow-2xl"
-                  >
-                    Keşfe Başla
-                  </button>
+                  <div className="flex flex-col items-center gap-6">
+                    <div className="bg-white/5 inline-flex items-center gap-3 px-5 py-2 rounded-full border border-white/10 backdrop-blur-md">
+                      <span className="w-2.5 h-2.5 bg-sky-400 rounded-full animate-pulse shadow-[0_0_15px_#38bdf8]"></span>
+                      <p className="text-[8px] md:text-xs font-black uppercase tracking-[0.3em] text-sky-100 italic">P4C + YAPAY ZEKA = GELECEĞİN EĞİTİMİ</p>
+                    </div>
+                    <button 
+                      onClick={() => handleSend("Keşfe başlayalım!")}
+                      className="glow-button px-10 py-4 md:px-16 md:py-6 rounded-full text-white font-black text-xs md:text-2xl tracking-tight transition-transform active:scale-95 shadow-2xl"
+                    >
+                      Keşfe Başla
+                    </button>
+                  </div>
                 </div>
               </div>
             ) : (
@@ -233,7 +238,7 @@ const App: React.FC = () => {
                   <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="4"><path d="m5 12 7-7 7 7"/><path d="M12 19V5"/></svg>
                 </button>
               </div>
-              <p className="text-[7px] md:text-[9px] text-white/5 text-center mt-2 uppercase tracking-[0.5em] font-black italic">FAST-STREAM ENGINE v2.0</p>
+              <p className="text-[7px] md:text-[9px] text-white/5 text-center mt-2 uppercase tracking-[0.5em] font-black italic">ULTRA-FAST STREAMING ACTIVE</p>
             </footer>
           )}
         </div>
