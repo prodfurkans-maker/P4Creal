@@ -4,15 +4,11 @@ import { GeminiResponse, Message } from "../types.ts";
 
 const START_STORY = `Kral, Herakles’ten uzak diyarlardan üç altın elma getirmesini istedi. Altın elmaların bulunduğu bahçeyi bulmak hiç de kolay değildi. Bahçe Atlas dağlarının yakınlarındaydı. Herakles sonunda ufukta büyük, mor bir dağ gördü. Bu bir devdi. Devin yüzü, gökyüzünün bütün yükünü omuzlarında taşımaktan dolayı mosmordu. “Senin adın Atlas mı?” diye yukarı doğru bağırdı Herakles. “Doğrudur. Sen de şu bildiğimiz Herakles misin?” diye sordu Atlas. Herakles, Hesperidler'in bahçesinden üç altın elma almak istediğini söyledi. Atlas, elmaları korkusuz bir ejderhanın koruduğunu söyledi. Atlas bir öneride bulundu: Gökyüzünü uzun süredir taşıdığını, hareketsiz kaldığını ve ejderhayı tanıdığını söyledi. Eğer Herakles bir süre gökyüzünü tutarsa, elmaları onun için gidip alabileceğini söyledi.`;
 
-const SYSTEM_INSTRUCTION = `Sen NextGenLAB P4C asistanısın. 
-Görevin: Çocuklarla Herakles ve Atlas hikayesi üzerinden felsefi sorgulama yapmak.
-
-HIZ KURALLARI:
-1. storyContent: SADECE ilk mesajda şu hikayeyi kullan: "${START_STORY}". Diğer turlarda boş ("") bırak.
-2. reflection: Kullanıcının cevabına yönelik 1 kısa ve vurucu cümle.
-3. question: Derin ama anlaşılır tek bir P4C sorusu.
-
-Yanıtlarını anında ve JSON formatında ver.`;
+const SYSTEM_INSTRUCTION = `P4C asistanısın. 
+1. storyContent: SADECE ilk mesajda şu metni ver: "${START_STORY}". Sonraki turlarda boş ("") bırak.
+2. reflection: 1 kısa cümlelik felsefi yansıtma.
+3. question: Tek bir derin P4C sorusu.
+Hız için sadece JSON dön.`;
 
 export const getP4CResponse = async (userMessage: string, chatHistory: Message[]): Promise<GeminiResponse> => {
   const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
@@ -25,7 +21,7 @@ export const getP4CResponse = async (userMessage: string, chatHistory: Message[]
 
   contents.push({
     role: 'user',
-    parts: [{ text: isFirstTurn ? "Hikayeyi anlat ve sorgulamayı başlat." : userMessage }]
+    parts: [{ text: isFirstTurn ? "BAŞLAT" : userMessage }]
   });
 
   try {
@@ -35,8 +31,8 @@ export const getP4CResponse = async (userMessage: string, chatHistory: Message[]
       config: {
         systemInstruction: SYSTEM_INSTRUCTION,
         responseMimeType: "application/json",
-        temperature: 0.5,
-        thinkingConfig: { thinkingBudget: 0 }, // Hız için düşünme süresini kapat
+        temperature: 0.4,
+        thinkingConfig: { thinkingBudget: 0 },
         responseSchema: {
           type: Type.OBJECT,
           properties: {
@@ -49,8 +45,7 @@ export const getP4CResponse = async (userMessage: string, chatHistory: Message[]
       },
     });
     
-    const data = JSON.parse(response.text?.trim() || "{}");
-    return data;
+    return JSON.parse(response.text?.trim() || "{}");
   } catch (error) {
     console.error("Hız Hatası:", error);
     throw error;

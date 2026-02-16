@@ -6,7 +6,7 @@ import { getP4CResponse, generateTitle } from './services/geminiService.ts';
 
 const App: React.FC = () => {
   const [sessions, setSessions] = useState<ChatSession[]>(() => {
-    const saved = localStorage.getItem('ng_sessions_p4c_v12');
+    const saved = localStorage.getItem('ng_sessions_p4c_v13');
     return saved ? JSON.parse(saved) : [];
   });
   const [activeSessionId, setActiveSessionId] = useState<string | null>(null);
@@ -23,7 +23,7 @@ const App: React.FC = () => {
   const SECOND_LOGO_URL = "https://lh3.googleusercontent.com/d/1IXK9E888uqex4wBK1VYBb6byBHFKRe3E";
 
   useEffect(() => {
-    localStorage.setItem('ng_sessions_p4c_v12', JSON.stringify(sessions));
+    localStorage.setItem('ng_sessions_p4c_v13', JSON.stringify(sessions));
   }, [sessions]);
 
   useEffect(() => {
@@ -33,7 +33,7 @@ const App: React.FC = () => {
       if (lastMsg.role === 'assistant' && lastAiMessageRef.current) {
         setTimeout(() => {
           lastAiMessageRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' });
-        }, 50);
+        }, 30);
       } else if (lastMsg.role === 'user' && scrollRef.current) {
         scrollRef.current.scrollTo({ top: scrollRef.current.scrollHeight, behavior: 'smooth' });
       }
@@ -53,7 +53,7 @@ const App: React.FC = () => {
     const userMsg: Message = {
       id: Date.now().toString(),
       role: 'user',
-      content: messageText || "Keşfe başlayalım!",
+      content: messageText || "Hadi Keşfedelim!",
       timestamp: Date.now()
     };
 
@@ -86,8 +86,8 @@ const App: React.FC = () => {
       setSessions(prev => prev.map(s => s.id === currentSessionId ? { ...s, messages: [...s.messages, aiMsg] } : s));
       
       if (chatHistory.length === 0) {
-        const title = data.question.split(' ').slice(0, 2).join(' ') || "Keşif Başladı";
-        setSessions(prev => prev.map(s => s.id === currentSessionId ? { ...s, title } : s));
+        const simpleTitle = data.question.split(' ').slice(0, 2).join(' ') || "Atlas ve Herakles";
+        setSessions(prev => prev.map(s => s.id === currentSessionId ? { ...s, title: simpleTitle } : s));
       }
     } catch (err) {
       console.error(err);
