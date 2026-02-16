@@ -6,7 +6,7 @@ import { getP4CStream, generateTitle, START_STORY } from './services/geminiServi
 
 const App: React.FC = () => {
   const [sessions, setSessions] = useState<ChatSession[]>(() => {
-    const saved = localStorage.getItem('ng_v23_final');
+    const saved = localStorage.getItem('ng_v24_ultra_final');
     return saved ? JSON.parse(saved) : [];
   });
   const [activeSessionId, setActiveSessionId] = useState<string | null>(null);
@@ -21,7 +21,7 @@ const App: React.FC = () => {
   const SECOND_LOGO_URL = "https://lh3.googleusercontent.com/d/1IXK9E888uqex4wBK1VYBb6byBHFKRe3E";
 
   useEffect(() => {
-    localStorage.setItem('ng_v23_final', JSON.stringify(sessions));
+    localStorage.setItem('ng_v24_ultra_final', JSON.stringify(sessions));
   }, [sessions]);
 
   useEffect(() => {
@@ -61,7 +61,7 @@ const App: React.FC = () => {
     setInput('');
     setIsLoading(true);
 
-    // FIRST TURN - INSTANT BYPASS
+    // İlk Tur: Hikaye Karşılaması (0 ms)
     if (!activeSessionId || (activeSession && activeSession.messages.length === 0)) {
       setTimeout(() => {
         const aiMsg: Message = {
@@ -85,12 +85,13 @@ const App: React.FC = () => {
       const aiMsgId = `ai-${Date.now()}`;
       let fullText = "";
       
+      // ANINDA "..." İle AI balonu oluştur
       const aiMsgPlaceholder: Message = { 
         id: aiMsgId, 
         role: 'assistant', 
         content: '', 
         timestamp: Date.now(), 
-        data: { reflection: '', question: '' } 
+        data: { reflection: '...', question: '...' } 
       };
 
       setSessions(prev => prev.map(s => s.id === currentSessionId ? { ...s, messages: [...s.messages, aiMsgPlaceholder] } : s));
@@ -100,8 +101,10 @@ const App: React.FC = () => {
       for await (const chunk of stream) {
         fullText += chunk;
         const parts = fullText.split("||");
-        const reflection = parts[0]?.replace(/[\[\]]/g, '').trim() || "";
-        const question = parts[1]?.replace(/[\[\]]/g, '').trim() || "";
+        
+        // İlk chunk geldiği an "..." silinir ve akış başlar
+        const reflection = parts[0]?.replace(/[\[\]]/g, '').trim() || "...";
+        const question = parts[1]?.replace(/[\[\]]/g, '').trim() || "...";
         
         setSessions(prev => prev.map(s => s.id === currentSessionId ? {
           ...s,
@@ -111,6 +114,7 @@ const App: React.FC = () => {
           } : m)
         } : s));
       }
+
     } catch (err) {
       console.error(err);
     } finally {
@@ -199,15 +203,27 @@ const App: React.FC = () => {
                           {msg.data?.reflection && (
                             <div className="pl-3 border-l-2 border-indigo-500/40">
                               <label className="text-[7px] md:text-[9px] font-black text-indigo-300 uppercase tracking-widest block mb-1 opacity-50">YANSITMA</label>
-                              <p className="text-base md:text-xl font-black text-white leading-snug">"{msg.data?.reflection}"</p>
+                              <p className="text-base md:text-xl font-black text-white leading-snug">
+                                {msg.data.reflection === '...' ? (
+                                  <span className="animate-pulse opacity-50">...</span>
+                                ) : (
+                                  `"${msg.data.reflection}"`
+                                )}
+                              </p>
                             </div>
                           )}
 
                           {msg.data?.question && (
-                            <div className="p-5 md:p-10 bg-indigo-500/10 border border-indigo-500/20 rounded-xl md:rounded-[3rem] relative overflow-hidden shadow-lg">
+                            <div className="p-5 md:p-10 bg-indigo-500/10 border border-indigo-500/20 rounded-xl md:rounded-[3rem] relative overflow-hidden shadow-lg min-h-[100px] flex flex-col justify-center">
                               <div className="absolute top-0 left-0 w-1.5 h-full bg-indigo-500"></div>
                               <label className="text-[7px] md:text-[10px] font-black text-indigo-400 uppercase tracking-widest block mb-3">SORGULAMA SORUSU</label>
-                              <p className="text-lg md:text-3xl font-black text-white leading-snug tracking-tight">{msg.data?.question}</p>
+                              <p className="text-lg md:text-3xl font-black text-white leading-snug tracking-tight">
+                                {msg.data.question === '...' ? (
+                                  <span className="animate-pulse opacity-50">...</span>
+                                ) : (
+                                  msg.data.question
+                                )}
+                              </p>
                             </div>
                           )}
                         </div>
@@ -238,7 +254,7 @@ const App: React.FC = () => {
                   <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="4"><path d="m5 12 7-7 7 7"/><path d="M12 19V5"/></svg>
                 </button>
               </div>
-              <p className="text-[7px] md:text-[9px] text-white/5 text-center mt-2 uppercase tracking-[0.5em] font-black italic">ULTRA-FAST STREAMING ACTIVE</p>
+              <p className="text-[7px] md:text-[9px] text-white/5 text-center mt-2 uppercase tracking-[0.5em] font-black italic">ULTRA-FAST STREAMING ACTIVE v2.5</p>
             </footer>
           )}
         </div>
