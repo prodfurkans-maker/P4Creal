@@ -16,6 +16,8 @@ const App: React.FC = () => {
   const scrollRef = useRef<HTMLDivElement>(null);
 
   const activeSession = sessions.find(s => s.id === activeSessionId);
+  
+  // Logos
   const LOGO_URL = "https://lh3.googleusercontent.com/d/1iuS4shzoEIy9xsMHhm7AUyMKmuZ9WCgp";
   const SECOND_LOGO_URL = "https://lh3.googleusercontent.com/d/1IXK9E888uqex4wBK1VYBb6byBHFKRe3E";
 
@@ -78,6 +80,7 @@ const App: React.FC = () => {
 
   return (
     <div className="flex w-full ethereal-bg h-full overflow-hidden">
+      {/* Sidebar Section */}
       <div className={`fixed inset-0 z-50 lg:relative lg:flex lg:inset-auto ${isSidebarOpen ? 'flex' : 'hidden'}`}>
         <div className="absolute inset-0 bg-slate-950/95 backdrop-blur-xl lg:hidden" onClick={() => setIsSidebarOpen(false)}></div>
         <div className="relative w-72 h-full bg-slate-900 border-r border-white/5 shadow-2xl">
@@ -93,22 +96,26 @@ const App: React.FC = () => {
       <main className="flex-1 flex flex-col items-center p-0 md:p-4 lg:p-6 relative z-10 h-full overflow-hidden">
         <div className="w-full max-w-3xl h-full flex flex-col md:glass-card md:rounded-[2.5rem] overflow-hidden transition-all duration-300 bg-slate-900/50 md:bg-transparent shadow-2xl">
           
-          {/* Header - Eşitlenmiş Logolar */}
+          {/* Header - Perfect Logo Alignment */}
           <header className="flex items-center justify-between px-4 py-3 md:py-6 shrink-0 z-30 border-b border-white/5 backdrop-blur-md">
             <button onClick={() => setIsSidebarOpen(true)} className="p-2 text-white/40 hover:text-white transition-colors">
               <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><line x1="3" y1="12" x2="21" y2="12"></line><line x1="3" y1="6" x2="21" y2="6"></line><line x1="3" y1="18" x2="21" y2="18"></line></svg>
             </button>
             
-            <div className="flex items-center gap-2 md:gap-4 flex-1 justify-center max-w-[70%]">
+            <div className="flex items-center gap-2 md:gap-4 flex-1 justify-center max-w-[80%]">
               <div className="flex items-center gap-1 md:gap-2 shrink-0">
                 <div className="bg-white rounded-md p-0.5 w-7 h-7 md:w-10 md:h-10 flex items-center justify-center shadow-lg">
-                  <img src={LOGO_URL} alt="Logo" className="w-full h-full object-contain" />
+                  <img src={LOGO_URL} alt="NextGenLAB" className="w-full h-full object-contain" />
                 </div>
                 <span className="font-black text-[9px] md:text-[13px] tracking-tight text-white/90 uppercase truncate">NEXTGENLAB</span>
               </div>
-              <div className="h-5 w-[1px] bg-white/10 shrink-0 mx-1"></div>
-              {/* P4C Logosu NextGenLAB Logosuyla Aynı Boyuta Getirildi */}
-              <img src={SECOND_LOGO_URL} alt="P4C" className="h-7 md:h-10 object-contain brightness-110 shrink-0" />
+              
+              <div className="h-5 w-[1px] bg-white/10 shrink-0 mx-0.5 md:mx-1"></div>
+              
+              {/* Eşitlenmiş P4C Logosu */}
+              <div className="bg-white rounded-md p-0.5 w-7 h-7 md:w-10 md:h-10 flex items-center justify-center shadow-lg shrink-0">
+                <img src={SECOND_LOGO_URL} alt="P4C" className="w-full h-full object-contain" />
+              </div>
             </div>
 
             <button onClick={handleNewChat} className="p-2 text-white/40 hover:text-white transition-colors">
@@ -127,7 +134,7 @@ const App: React.FC = () => {
                   </h2>
                   
                   <div className="flex flex-col items-center gap-8 md:gap-12 w-full">
-                    {/* Tek Satır Slogan - Mobilde Taşmaz */}
+                    {/* Responsive Single Line Slogan */}
                     <div className="bg-white/5 inline-flex items-center gap-2 md:gap-3 px-4 md:px-8 py-2 md:py-4 rounded-full border border-white/10 max-w-[98%] overflow-hidden shrink-0">
                       <span className="w-1.5 md:w-2.5 h-1.5 md:h-2.5 bg-sky-400 rounded-full shadow-[0_0_12px_#38bdf8] animate-pulse shrink-0"></span>
                       <p className="text-[8px] min-[375px]:text-[10px] md:text-sm font-black uppercase tracking-[0.1em] md:tracking-[0.3em] text-sky-100 whitespace-nowrap">
