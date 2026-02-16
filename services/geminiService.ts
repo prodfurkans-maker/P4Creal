@@ -2,18 +2,12 @@
 import { GoogleGenAI, Type } from "@google/genai";
 import { GeminiResponse } from "../types.ts";
 
-const SYSTEM_INSTRUCTION = `
-Sen NextGenLAB P4C (Çocuklar İçin Felsefe) Rehberisin (10-14 yaş).
-Hızlı, zeki ve felsefi bir arkadaş gibi davran.
-
-YAPIN:
-1. JSON formatında, çok kısa ve öz yanıt ver.
-2. "empathy": Duyguyu anladığını belirten 1 cümle.
-3. "suggestion": Merak uyandıran kısa felsefi ışık.
-4. "question": Derin, ucu açık tek bir P4C sorusu.
-
-KURAL: Gereksiz kelimelerden kaçın. Hız ve mantık öncelikli.
-`;
+const SYSTEM_INSTRUCTION = `NextGenLAB P4C Rehberisin. 10-14 yaş için zeki ve hızlı felsefi dostsun. 
+KURAL: JSON formatında, çok kısa ve öz yanıt ver. 
+"empathy": Tek cümle duygu onayı. 
+"suggestion": Kısa felsefi bakış. 
+"question": Derin P4C sorusu. 
+Lafı uzatma, ChatGPT gibi çok hızlı ol.`;
 
 export const getEmpathyResponse = async (userMessage: string): Promise<GeminiResponse> => {
   const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
@@ -24,8 +18,8 @@ export const getEmpathyResponse = async (userMessage: string): Promise<GeminiRes
       config: {
         systemInstruction: SYSTEM_INSTRUCTION,
         responseMimeType: "application/json",
-        temperature: 0.4, // Daha tutarlı ve hızlı yanıtlar için düşürüldü
-        thinkingConfig: { thinkingBudget: 0 }, // Düşünme gecikmesini iptal et, doğrudan cevap ver
+        temperature: 0.1, // Hız ve tutarlılık için minimuma çekildi
+        thinkingConfig: { thinkingBudget: 0 }, // Düşünme beklemesini tamamen kapat
         responseSchema: {
           type: Type.OBJECT,
           properties: {
@@ -37,29 +31,25 @@ export const getEmpathyResponse = async (userMessage: string): Promise<GeminiRes
         }
       },
     });
-    const text = response.text || "{}";
-    return JSON.parse(text.trim());
+    return JSON.parse(response.text?.trim() || "{}");
   } catch (error) {
-    console.error("Gemini Error:", error);
+    console.error("Hız Hatası:", error);
     throw error;
   }
 };
 
 export const generateTitle = async (message: string): Promise<string> => {
-  if (message.length < 5) return "Yeni Keşif";
+  if (message.length < 5) return "Fikir Keşfi";
   const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
   try {
     const response = await ai.models.generateContent({
       model: "gemini-3-flash-preview",
-      contents: `Bu mesajın konusunu 2 kelimeyle özetle. Ciddi ve mantıklı ol. "Selam" veya saçma ifadeler kullanma: "${message}"`,
-      config: { 
-        temperature: 0.1,
-        thinkingConfig: { thinkingBudget: 0 } 
-      }
+      contents: `Bu mesajı özetleyen mantıklı, ciddi, 2 kelimelik başlık yaz. Selam/Naber/Gönül deme: "${message}"`,
+      config: { temperature: 0.1, thinkingConfig: { thinkingBudget: 0 } }
     });
-    let title = response.text?.replace(/[0-9."*]/g, '').trim() || "Felsefi Keşif";
-    return title.length > 20 ? title.substring(0, 17) + "..." : title;
+    let title = response.text?.replace(/[0-9."*]/g, '').trim() || "Keşif";
+    return title.length > 20 ? title.substring(0, 18) + ".." : title;
   } catch {
-    return "Fikir Keşfi";
+    return "Yeni Sohbet";
   }
 };
