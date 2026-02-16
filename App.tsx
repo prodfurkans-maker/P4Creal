@@ -6,7 +6,7 @@ import { getP4CResponse, generateTitle } from './services/geminiService.ts';
 
 const App: React.FC = () => {
   const [sessions, setSessions] = useState<ChatSession[]>(() => {
-    const saved = localStorage.getItem('ng_sessions_p4c_v11');
+    const saved = localStorage.getItem('ng_sessions_p4c_v12');
     return saved ? JSON.parse(saved) : [];
   });
   const [activeSessionId, setActiveSessionId] = useState<string | null>(null);
@@ -23,7 +23,7 @@ const App: React.FC = () => {
   const SECOND_LOGO_URL = "https://lh3.googleusercontent.com/d/1IXK9E888uqex4wBK1VYBb6byBHFKRe3E";
 
   useEffect(() => {
-    localStorage.setItem('ng_sessions_p4c_v11', JSON.stringify(sessions));
+    localStorage.setItem('ng_sessions_p4c_v12', JSON.stringify(sessions));
   }, [sessions]);
 
   useEffect(() => {
@@ -86,9 +86,8 @@ const App: React.FC = () => {
       setSessions(prev => prev.map(s => s.id === currentSessionId ? { ...s, messages: [...s.messages, aiMsg] } : s));
       
       if (chatHistory.length === 0) {
-        generateTitle(data.question).then(title => {
-          setSessions(prev => prev.map(s => s.id === currentSessionId ? { ...s, title } : s));
-        });
+        const title = data.question.split(' ').slice(0, 2).join(' ') || "Keşif Başladı";
+        setSessions(prev => prev.map(s => s.id === currentSessionId ? { ...s, title } : s));
       }
     } catch (err) {
       console.error(err);
@@ -99,7 +98,6 @@ const App: React.FC = () => {
 
   return (
     <div className="flex w-full ethereal-bg h-full overflow-hidden font-sans text-slate-100">
-      {/* Sidebar */}
       <div className={`fixed inset-0 z-50 lg:relative lg:flex lg:inset-auto ${isSidebarOpen ? 'flex' : 'hidden'}`}>
         <div className="absolute inset-0 bg-slate-950/90 backdrop-blur-md lg:hidden" onClick={() => setIsSidebarOpen(false)}></div>
         <div className="relative w-72 h-full bg-slate-900/40 border-r border-white/5 backdrop-blur-xl">

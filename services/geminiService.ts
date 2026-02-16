@@ -2,14 +2,17 @@
 import { GoogleGenAI, Type } from "@google/genai";
 import { GeminiResponse, Message } from "../types.ts";
 
-const SYSTEM_INSTRUCTION = `Sen NextGenLAB için çalışan, dünyanın en iyi P4C (Philosophy for Children) kolaylaştırıcısısın. 
+const START_STORY = `Kral, Herakles’ten uzak diyarlardan üç altın elma getirmesini istedi. Altın elmaların bulunduğu bahçeyi bulmak hiç de kolay değildi. Bahçe Atlas dağlarının yakınlarındaydı. Herakles sonunda ufukta büyük, mor bir dağ gördü. Bu bir devdi. Devin yüzü, gökyüzünün bütün yükünü omuzlarında taşımaktan dolayı mosmordu. “Senin adın Atlas mı?” diye yukarı doğru bağırdı Herakles. “Doğrudur. Sen de şu bildiğimiz Herakles misin?” diye sordu Atlas. Herakles, Hesperidler'in bahçesinden üç altın elma almak istediğini söyledi. Atlas, elmaları korkusuz bir ejderhanın koruduğunu söyledi. Atlas bir öneride bulundu: Gökyüzünü uzun süredir taşıdığını, hareketsiz kaldığını ve ejderhayı tanıdığını söyledi. Eğer Herakles bir süre gökyüzünü tutarsa, elmaları onun için gidip alabileceğini söyledi.`;
 
-KURALLAR:
-1. storyContent: Sadece ilk mesajda hikayeyi anlat. Sonraki turlarda boş ("") bırak.
-2. reflection: Kullanıcının cevabını 1 kısa felsefi cümleyle onayla/analiz et.
-3. question: Kullanıcının fikrini derinleştiren tek bir P4C sorusu sor.
+const SYSTEM_INSTRUCTION = `Sen NextGenLAB P4C asistanısın. 
+Görevin: Çocuklarla Herakles ve Atlas hikayesi üzerinden felsefi sorgulama yapmak.
 
-Hız Notu: Gereksiz hiçbir kelime kullanma. Doğrudan ve vurucu ol.`;
+HIZ KURALLARI:
+1. storyContent: SADECE ilk mesajda şu hikayeyi kullan: "${START_STORY}". Diğer turlarda boş ("") bırak.
+2. reflection: Kullanıcının cevabına yönelik 1 kısa ve vurucu cümle.
+3. question: Derin ama anlaşılır tek bir P4C sorusu.
+
+Yanıtlarını anında ve JSON formatında ver.`;
 
 export const getP4CResponse = async (userMessage: string, chatHistory: Message[]): Promise<GeminiResponse> => {
   const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
@@ -22,18 +25,18 @@ export const getP4CResponse = async (userMessage: string, chatHistory: Message[]
 
   contents.push({
     role: 'user',
-    parts: [{ text: isFirstTurn ? "Altın Elmalar hikayesiyle sorgulamayı başlat." : userMessage }]
+    parts: [{ text: isFirstTurn ? "Hikayeyi anlat ve sorgulamayı başlat." : userMessage }]
   });
 
   try {
     const response = await ai.models.generateContent({
-      model: "gemini-3-flash-preview",
+      model: "gemini-3-flash-preview", 
       contents: contents,
       config: {
         systemInstruction: SYSTEM_INSTRUCTION,
         responseMimeType: "application/json",
-        temperature: 0.6,
-        thinkingConfig: { thinkingBudget: 0 },
+        temperature: 0.5,
+        thinkingConfig: { thinkingBudget: 0 }, // Hız için düşünme süresini kapat
         responseSchema: {
           type: Type.OBJECT,
           properties: {
@@ -47,10 +50,9 @@ export const getP4CResponse = async (userMessage: string, chatHistory: Message[]
     });
     
     const data = JSON.parse(response.text?.trim() || "{}");
-    if (!isFirstTurn) data.storyContent = "";
     return data;
   } catch (error) {
-    console.error("Gemini Speed Error:", error);
+    console.error("Hız Hatası:", error);
     throw error;
   }
 };
