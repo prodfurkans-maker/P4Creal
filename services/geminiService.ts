@@ -2,17 +2,16 @@
 import { GoogleGenAI, Type } from "@google/genai";
 import { GeminiResponse, Message } from "../types.ts";
 
-const SYSTEM_INSTRUCTION = `Sen NextGenLAB P4C asistanısın. Görevin çocuklarla felsefi sorgulama yapmak.
+const SYSTEM_INSTRUCTION = `Sen NextGenLAB için çalışan, dünyanın en iyi P4C (Philosophy for Children) kolaylaştırıcısısın. 
 
 KURALLAR:
-1. storyContent: Sadece ilk mesajda hikayeyi anlat (kısa ve öz). Sonraki turlarda boş ("") bırak.
-2. reflection: Kullanıcının fikrini 1-2 cümleyle felsefi olarak onayla/yansıt.
-3. question: Tek bir derin P4C sorusu sor.
+1. storyContent: Sadece ilk mesajda hikayeyi anlat. Sonraki turlarda boş ("") bırak.
+2. reflection: Kullanıcının cevabını 1 kısa felsefi cümleyle onayla/analiz et.
+3. question: Kullanıcının fikrini derinleştiren tek bir P4C sorusu sor.
 
-Hız için: Gereksiz detaydan kaçın, JSON formatına sadık kal.`;
+Hız Notu: Gereksiz hiçbir kelime kullanma. Doğrudan ve vurucu ol.`;
 
 export const getP4CResponse = async (userMessage: string, chatHistory: Message[]): Promise<GeminiResponse> => {
-  // Her çağrıda yeni instance oluşturmak güncel API key kullanımını garanti eder.
   const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
   const isFirstTurn = chatHistory.length === 0;
   
@@ -28,13 +27,13 @@ export const getP4CResponse = async (userMessage: string, chatHistory: Message[]
 
   try {
     const response = await ai.models.generateContent({
-      model: "gemini-3-flash-preview", // En hızlı model
+      model: "gemini-3-flash-preview",
       contents: contents,
       config: {
         systemInstruction: SYSTEM_INSTRUCTION,
         responseMimeType: "application/json",
         temperature: 0.6,
-        thinkingConfig: { thinkingBudget: 0 }, // Düşünme süresini kapatarak hızı artırıyoruz
+        thinkingConfig: { thinkingBudget: 0 },
         responseSchema: {
           type: Type.OBJECT,
           properties: {
@@ -47,12 +46,11 @@ export const getP4CResponse = async (userMessage: string, chatHistory: Message[]
       },
     });
     
-    // .text özelliği üzerinden veriyi alıyoruz
     const data = JSON.parse(response.text?.trim() || "{}");
     if (!isFirstTurn) data.storyContent = "";
     return data;
   } catch (error) {
-    console.error("Hız Hatası:", error);
+    console.error("Gemini Speed Error:", error);
     throw error;
   }
 };
