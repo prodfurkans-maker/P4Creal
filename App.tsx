@@ -6,7 +6,7 @@ import { getP4CResponse, generateTitle } from './services/geminiService.ts';
 
 const App: React.FC = () => {
   const [sessions, setSessions] = useState<ChatSession[]>(() => {
-    const saved = localStorage.getItem('ng_p4c_v15');
+    const saved = localStorage.getItem('ng_v16_speed');
     return saved ? JSON.parse(saved) : [];
   });
   const [activeSessionId, setActiveSessionId] = useState<string | null>(null);
@@ -23,7 +23,7 @@ const App: React.FC = () => {
   const SECOND_LOGO_URL = "https://lh3.googleusercontent.com/d/1IXK9E888uqex4wBK1VYBb6byBHFKRe3E";
 
   useEffect(() => {
-    localStorage.setItem('ng_p4c_v15', JSON.stringify(sessions));
+    localStorage.setItem('ng_v16_speed', JSON.stringify(sessions));
   }, [sessions]);
 
   useEffect(() => {
@@ -32,7 +32,7 @@ const App: React.FC = () => {
       if (lastMsg.role === 'assistant' && lastAiMessageRef.current) {
         lastAiMessageRef.current.scrollIntoView({ behavior: 'smooth', block: 'start' });
       } else if (scrollRef.current) {
-        scrollRef.current.scrollTo({ top: scrollRef.current.scrollHeight, behavior: 'smooth' });
+        scrollRef.current.scrollTo({ top: scrollRef.current.scrollHeight, behavior: 'auto' });
       }
     }
   }, [activeSession?.messages, isLoading]);
@@ -50,14 +50,14 @@ const App: React.FC = () => {
     const userMsg: Message = {
       id: Date.now().toString(),
       role: 'user',
-      content: messageText || "Hadi başlayalım!",
+      content: messageText || "Keşfe başlayalım!",
       timestamp: Date.now()
     };
 
     let currentSessionId = activeSessionId;
     if (!currentSessionId) {
       const newId = Date.now().toString();
-      const newSession: ChatSession = { id: newId, title: "Yeni Sohbet", messages: [userMsg], createdAt: Date.now() };
+      const newSession: ChatSession = { id: newId, title: "Yeni Keşif", messages: [userMsg], createdAt: Date.now() };
       setSessions(prev => [newSession, ...prev]);
       setActiveSessionId(newId);
       currentSessionId = newId;
@@ -231,7 +231,7 @@ const App: React.FC = () => {
                   <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="4"><path d="m5 12 7-7 7 7"/><path d="M12 19V5"/></svg>
                 </button>
               </div>
-              <p className="text-[7px] md:text-[9px] text-white/10 text-center mt-2 uppercase tracking-[0.5em] font-black italic">ULTRA SPEED ENGINE ACTIVE</p>
+              <p className="text-[7px] md:text-[9px] text-white/10 text-center mt-2 uppercase tracking-[0.5em] font-black italic">NEXTGEN QUANTUM ENGINE ACTIVE</p>
             </footer>
           )}
         </div>
