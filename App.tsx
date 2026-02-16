@@ -6,7 +6,7 @@ import { getP4CResponse, generateTitle } from './services/geminiService.ts';
 
 const App: React.FC = () => {
   const [sessions, setSessions] = useState<ChatSession[]>(() => {
-    const saved = localStorage.getItem('ng_v17_ultra');
+    const saved = localStorage.getItem('ng_v18_final');
     return saved ? JSON.parse(saved) : [];
   });
   const [activeSessionId, setActiveSessionId] = useState<string | null>(null);
@@ -23,15 +23,15 @@ const App: React.FC = () => {
   const SECOND_LOGO_URL = "https://lh3.googleusercontent.com/d/1IXK9E888uqex4wBK1VYBb6byBHFKRe3E";
 
   useEffect(() => {
-    localStorage.setItem('ng_v17_ultra', JSON.stringify(sessions));
+    localStorage.setItem('ng_v18_final', JSON.stringify(sessions));
   }, [sessions]);
 
-  // Mobil Scroll Optimizasyonu
+  // Faster scroll for real-time feel
   useEffect(() => {
     if (activeSession?.messages?.length) {
       const lastMsg = activeSession.messages[activeSession.messages.length - 1];
       if (lastMsg.role === 'assistant' && lastAiMessageRef.current) {
-        lastAiMessageRef.current.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        lastAiMessageRef.current.scrollIntoView({ behavior: 'auto', block: 'start' });
       } else if (scrollRef.current) {
         scrollRef.current.scrollTo({ top: scrollRef.current.scrollHeight, behavior: 'auto' });
       }
@@ -51,7 +51,7 @@ const App: React.FC = () => {
     const userMsg: Message = {
       id: Date.now().toString(),
       role: 'user',
-      content: messageText || "Hadi başlayalım!",
+      content: messageText || "Keşfe başlayalım!",
       timestamp: Date.now()
     };
 
@@ -70,7 +70,6 @@ const App: React.FC = () => {
     setIsLoading(true);
 
     try {
-      // Hız için history'i temizleyip gönderiyoruz
       const currentMessages = sessions.find(s => s.id === currentSessionId)?.messages || [];
       const data = await getP4CResponse(messageText, currentMessages);
       
@@ -84,6 +83,7 @@ const App: React.FC = () => {
 
       setSessions(prev => prev.map(s => s.id === currentSessionId ? { ...s, messages: [...s.messages, aiMsg] } : s));
       
+      // Async title generation - don't await this
       if (currentMessages.length <= 1) {
         generateTitle(data.question).then(t => {
           setSessions(prev => prev.map(s => s.id === currentSessionId ? { ...s, title: t } : s));
@@ -233,7 +233,7 @@ const App: React.FC = () => {
                   <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="4"><path d="m5 12 7-7 7 7"/><path d="M12 19V5"/></svg>
                 </button>
               </div>
-              <p className="text-[7px] md:text-[9px] text-white/10 text-center mt-2 uppercase tracking-[0.5em] font-black italic">ULTRA-FAST DEPLOY ACTIVE</p>
+              <p className="text-[7px] md:text-[9px] text-white/10 text-center mt-2 uppercase tracking-[0.5em] font-black italic">REAL-TIME P4C ENGINE ACTIVE</p>
             </footer>
           )}
         </div>
