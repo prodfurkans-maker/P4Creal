@@ -6,7 +6,7 @@ import { getP4CStream, generateTitle, START_STORY } from './services/geminiServi
 
 const App: React.FC = () => {
   const [sessions, setSessions] = useState<ChatSession[]>(() => {
-    const saved = localStorage.getItem('ng_v24_ultra_final');
+    const saved = localStorage.getItem('ng_v25_turbo');
     return saved ? JSON.parse(saved) : [];
   });
   const [activeSessionId, setActiveSessionId] = useState<string | null>(null);
@@ -21,7 +21,7 @@ const App: React.FC = () => {
   const SECOND_LOGO_URL = "https://lh3.googleusercontent.com/d/1IXK9E888uqex4wBK1VYBb6byBHFKRe3E";
 
   useEffect(() => {
-    localStorage.setItem('ng_v24_ultra_final', JSON.stringify(sessions));
+    localStorage.setItem('ng_v25_turbo', JSON.stringify(sessions));
   }, [sessions]);
 
   useEffect(() => {
@@ -61,7 +61,7 @@ const App: React.FC = () => {
     setInput('');
     setIsLoading(true);
 
-    // İlk Tur: Hikaye Karşılaması (0 ms)
+    // İLK TUR: Model çağırmadan anında hikayeyi bas
     if (!activeSessionId || (activeSession && activeSession.messages.length === 0)) {
       setTimeout(() => {
         const aiMsg: Message = {
@@ -85,13 +85,13 @@ const App: React.FC = () => {
       const aiMsgId = `ai-${Date.now()}`;
       let fullText = "";
       
-      // ANINDA "..." İle AI balonu oluştur
+      // Boş bir AI balonu oluştur (henüz data yok)
       const aiMsgPlaceholder: Message = { 
         id: aiMsgId, 
         role: 'assistant', 
         content: '', 
         timestamp: Date.now(), 
-        data: { reflection: '...', question: '...' } 
+        data: { reflection: '', question: '' } 
       };
 
       setSessions(prev => prev.map(s => s.id === currentSessionId ? { ...s, messages: [...s.messages, aiMsgPlaceholder] } : s));
@@ -101,10 +101,8 @@ const App: React.FC = () => {
       for await (const chunk of stream) {
         fullText += chunk;
         const parts = fullText.split("||");
-        
-        // İlk chunk geldiği an "..." silinir ve akış başlar
-        const reflection = parts[0]?.replace(/[\[\]]/g, '').trim() || "...";
-        const question = parts[1]?.replace(/[\[\]]/g, '').trim() || "...";
+        const reflection = parts[0]?.replace(/[\[\]]/g, '').trim() || "";
+        const question = parts[1]?.replace(/[\[\]]/g, '').trim() || "";
         
         setSessions(prev => prev.map(s => s.id === currentSessionId ? {
           ...s,
@@ -114,7 +112,6 @@ const App: React.FC = () => {
           } : m)
         } : s));
       }
-
     } catch (err) {
       console.error(err);
     } finally {
@@ -192,45 +189,46 @@ const App: React.FC = () => {
                       {msg.role === 'user' ? (
                         <p className="text-sm md:text-xl leading-relaxed">{msg.content}</p>
                       ) : (
-                        <div className="space-y-4 md:space-y-8">
-                          {msg.data?.storyContent && (
-                            <div className="bg-white/5 p-4 md:p-8 rounded-xl border border-white/5 animate-in zoom-in-95 duration-300">
-                              <label className="text-[7px] md:text-[9px] font-black text-sky-400 uppercase tracking-widest block mb-2 opacity-50 italic">KADİM HİKAYE</label>
-                              <p className="text-xs md:text-lg font-medium leading-relaxed italic text-slate-100">{msg.data.storyContent}</p>
-                            </div>
-                          )}
-                          
-                          {msg.data?.reflection && (
-                            <div className="pl-3 border-l-2 border-indigo-500/40">
-                              <label className="text-[7px] md:text-[9px] font-black text-indigo-300 uppercase tracking-widest block mb-1 opacity-50">YANSITMA</label>
-                              <p className="text-base md:text-xl font-black text-white leading-snug">
-                                {msg.data.reflection === '...' ? (
-                                  <span className="animate-pulse opacity-50">...</span>
-                                ) : (
-                                  `"${msg.data.reflection}"`
-                                )}
-                              </p>
-                            </div>
-                          )}
+                        <div className="space-y-4 md:space-y-8 min-w-[30px]">
+                          {!msg.data?.reflection && !msg.data?.question && !msg.data?.storyContent ? (
+                            <span className="text-xl md:text-3xl font-black animate-pulse opacity-40">...</span>
+                          ) : (
+                            <>
+                              {msg.data?.storyContent && (
+                                <div className="bg-white/5 p-4 md:p-8 rounded-xl border border-white/5 animate-in zoom-in-95 duration-300">
+                                  <label className="text-[7px] md:text-[9px] font-black text-sky-400 uppercase tracking-widest block mb-2 opacity-50 italic">KADİM HİKAYE</label>
+                                  <p className="text-xs md:text-lg font-medium leading-relaxed italic text-slate-100">{msg.data.storyContent}</p>
+                                </div>
+                              )}
+                              
+                              {msg.data?.reflection && (
+                                <div className="pl-3 border-l-2 border-indigo-500/40 animate-in fade-in slide-in-from-left-2 duration-300">
+                                  <label className="text-[7px] md:text-[9px] font-black text-indigo-300 uppercase tracking-widest block mb-1 opacity-50">YANSITMA</label>
+                                  <p className="text-base md:text-xl font-black text-white leading-snug">"{msg.data.reflection}"</p>
+                                </div>
+                              )}
 
-                          {msg.data?.question && (
-                            <div className="p-5 md:p-10 bg-indigo-500/10 border border-indigo-500/20 rounded-xl md:rounded-[3rem] relative overflow-hidden shadow-lg min-h-[100px] flex flex-col justify-center">
-                              <div className="absolute top-0 left-0 w-1.5 h-full bg-indigo-500"></div>
-                              <label className="text-[7px] md:text-[10px] font-black text-indigo-400 uppercase tracking-widest block mb-3">SORGULAMA SORUSU</label>
-                              <p className="text-lg md:text-3xl font-black text-white leading-snug tracking-tight">
-                                {msg.data.question === '...' ? (
-                                  <span className="animate-pulse opacity-50">...</span>
-                                ) : (
-                                  msg.data.question
-                                )}
-                              </p>
-                            </div>
+                              {msg.data?.question && (
+                                <div className="p-5 md:p-10 bg-indigo-500/10 border border-indigo-500/20 rounded-xl md:rounded-[3rem] relative overflow-hidden shadow-lg animate-in zoom-in-95 duration-500">
+                                  <div className="absolute top-0 left-0 w-1.5 h-full bg-indigo-500"></div>
+                                  <label className="text-[7px] md:text-[10px] font-black text-indigo-400 uppercase tracking-widest block mb-3">SORGULAMA SORUSU</label>
+                                  <p className="text-lg md:text-3xl font-black text-white leading-snug tracking-tight">{msg.data.question}</p>
+                                </div>
+                              )}
+                            </>
                           )}
                         </div>
                       )}
                     </div>
                   </div>
                 ))}
+                {isLoading && activeSession.messages[activeSession.messages.length-1]?.role === 'user' && (
+                  <div className="flex flex-col items-start animate-in fade-in duration-200">
+                    <div className="max-w-[94%] px-8 py-6 rounded-[2rem] chat-bubble-ai">
+                      <span className="text-2xl font-black animate-pulse opacity-40">...</span>
+                    </div>
+                  </div>
+                )}
               </div>
             )}
           </div>
@@ -254,7 +252,7 @@ const App: React.FC = () => {
                   <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="4"><path d="m5 12 7-7 7 7"/><path d="M12 19V5"/></svg>
                 </button>
               </div>
-              <p className="text-[7px] md:text-[9px] text-white/5 text-center mt-2 uppercase tracking-[0.5em] font-black italic">ULTRA-FAST STREAMING ACTIVE v2.5</p>
+              <p className="text-[6px] md:text-[8px] text-white/5 text-center mt-2 uppercase tracking-[0.5em] font-black italic">NEXT-GEN TURBO ENGINE ACTIVE</p>
             </footer>
           )}
         </div>
