@@ -6,7 +6,7 @@ import { getP4CResponse, generateTitle } from './services/geminiService.ts';
 
 const App: React.FC = () => {
   const [sessions, setSessions] = useState<ChatSession[]>(() => {
-    const saved = localStorage.getItem('ng_sessions_p4c_v13');
+    const saved = localStorage.getItem('ng_sessions_v14_p4c');
     return saved ? JSON.parse(saved) : [];
   });
   const [activeSessionId, setActiveSessionId] = useState<string | null>(null);
@@ -23,18 +23,15 @@ const App: React.FC = () => {
   const SECOND_LOGO_URL = "https://lh3.googleusercontent.com/d/1IXK9E888uqex4wBK1VYBb6byBHFKRe3E";
 
   useEffect(() => {
-    localStorage.setItem('ng_sessions_p4c_v13', JSON.stringify(sessions));
+    localStorage.setItem('ng_sessions_v14_p4c', JSON.stringify(sessions));
   }, [sessions]);
 
   useEffect(() => {
-    if (activeSession?.messages && activeSession.messages.length > 0) {
+    if (activeSession?.messages?.length) {
       const lastMsg = activeSession.messages[activeSession.messages.length - 1];
-      
       if (lastMsg.role === 'assistant' && lastAiMessageRef.current) {
-        setTimeout(() => {
-          lastAiMessageRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' });
-        }, 30);
-      } else if (lastMsg.role === 'user' && scrollRef.current) {
+        lastAiMessageRef.current.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      } else if (scrollRef.current) {
         scrollRef.current.scrollTo({ top: scrollRef.current.scrollHeight, behavior: 'smooth' });
       }
     }
@@ -60,7 +57,7 @@ const App: React.FC = () => {
     let currentSessionId = activeSessionId;
     if (!currentSessionId) {
       const newId = Date.now().toString();
-      const newSession: ChatSession = { id: newId, title: "Yeni Sorgulama", messages: [userMsg], createdAt: Date.now() };
+      const newSession: ChatSession = { id: newId, title: "Yeni Sohbet", messages: [userMsg], createdAt: Date.now() };
       setSessions(prev => [newSession, ...prev]);
       setActiveSessionId(newId);
       currentSessionId = newId;
@@ -72,7 +69,7 @@ const App: React.FC = () => {
     setIsLoading(true);
 
     try {
-      const chatHistory = activeSession ? activeSession.messages : [];
+      const chatHistory = sessions.find(s => s.id === currentSessionId)?.messages || [];
       const data = await getP4CResponse(messageText, chatHistory);
       
       const aiMsg: Message = { 
@@ -85,9 +82,10 @@ const App: React.FC = () => {
 
       setSessions(prev => prev.map(s => s.id === currentSessionId ? { ...s, messages: [...s.messages, aiMsg] } : s));
       
-      if (chatHistory.length === 0) {
-        const simpleTitle = data.question.split(' ').slice(0, 2).join(' ') || "Atlas ve Herakles";
-        setSessions(prev => prev.map(s => s.id === currentSessionId ? { ...s, title: simpleTitle } : s));
+      if (chatHistory.length <= 1) {
+        generateTitle(data.question).then(t => {
+          setSessions(prev => prev.map(s => s.id === currentSessionId ? { ...s, title: t } : s));
+        });
       }
     } catch (err) {
       console.error(err);
@@ -98,6 +96,7 @@ const App: React.FC = () => {
 
   return (
     <div className="flex w-full ethereal-bg h-full overflow-hidden font-sans text-slate-100">
+      {/* Sidebar Mobile Overlay */}
       <div className={`fixed inset-0 z-50 lg:relative lg:flex lg:inset-auto ${isSidebarOpen ? 'flex' : 'hidden'}`}>
         <div className="absolute inset-0 bg-slate-950/90 backdrop-blur-md lg:hidden" onClick={() => setIsSidebarOpen(false)}></div>
         <div className="relative w-72 h-full bg-slate-900/40 border-r border-white/5 backdrop-blur-xl">
@@ -150,7 +149,7 @@ const App: React.FC = () => {
                       <p className="text-[8px] md:text-xs font-black uppercase tracking-[0.3em] text-sky-100 italic">P4C + YAPAY ZEKA = GELECEĞİN EĞİTİMİ</p>
                     </div>
                     <button 
-                      onClick={() => handleSend("Hadi başlayalım!")}
+                      onClick={() => handleSend("Keşfe başlayalım!")}
                       className="glow-button px-10 py-4 md:px-16 md:py-6 rounded-full text-white font-black text-xs md:text-2xl tracking-tight transition-transform active:scale-95 shadow-2xl"
                     >
                       Keşfe Başla
@@ -159,7 +158,7 @@ const App: React.FC = () => {
                 </div>
               </div>
             ) : (
-              <div ref={scrollRef} className="flex-1 overflow-y-auto no-scrollbar px-4 md:px-12 py-4 md:py-8 space-y-6 md:space-y-10">
+              <div ref={scrollRef} className="flex-1 overflow-y-auto no-scrollbar px-4 md:px-12 py-4 md:py-8 space-y-6 md:space-y-10 pb-20">
                 {activeSession.messages.map((msg, idx) => (
                   <div 
                     key={msg.id} 
@@ -199,7 +198,7 @@ const App: React.FC = () => {
                   </div>
                 ))}
                 {isLoading && (
-                  <div className="flex gap-2 text-indigo-400 px-6 items-center opacity-30">
+                  <div className="flex gap-2 text-indigo-400 px-6 items-center">
                     <span className="w-1.5 h-1.5 bg-white rounded-full animate-bounce"></span>
                     <span className="w-1.5 h-1.5 bg-white rounded-full animate-bounce delay-100"></span>
                     <span className="w-1.5 h-1.5 bg-white rounded-full animate-bounce delay-200"></span>
@@ -210,13 +209,13 @@ const App: React.FC = () => {
           </div>
 
           {activeSessionId && (
-            <footer className="px-4 py-3 md:px-12 md:py-6 shrink-0 z-40 bg-slate-950/30 backdrop-blur-xl border-t border-white/5">
-              <div className="relative flex items-center bg-white/5 border border-white/10 rounded-xl md:rounded-full p-1.5 transition-all hover:bg-white/10">
+            <footer className="px-4 py-3 md:px-12 md:py-6 shrink-0 z-40 bg-slate-950/50 backdrop-blur-2xl border-t border-white/5">
+              <div className="relative flex items-center bg-white/5 border border-white/10 rounded-xl md:rounded-full p-1 transition-all hover:bg-white/10">
                 <textarea
                   value={input} onChange={(e) => setInput(e.target.value)}
                   onKeyDown={(e) => { if(e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); handleSend(); } }}
                   placeholder="Düşünceni buraya yaz..."
-                  className="flex-1 max-h-24 md:max-h-32 py-2 px-3 md:px-8 bg-transparent border-none focus:ring-0 text-sm md:text-base font-bold text-white placeholder:text-white/20 resize-none no-scrollbar"
+                  className="flex-1 max-h-24 md:max-h-32 py-2.5 px-3 md:px-8 bg-transparent border-none focus:ring-0 text-sm md:text-base font-bold text-white placeholder:text-white/20 resize-none no-scrollbar"
                   rows={1}
                   onInput={(e) => {
                     const target = e.target as HTMLTextAreaElement;
@@ -226,14 +225,14 @@ const App: React.FC = () => {
                 />
                 <button
                   onClick={() => handleSend()} disabled={!input.trim() || isLoading}
-                  className={`p-2.5 md:p-5 rounded-lg md:rounded-full transition-all ${
+                  className={`p-2.5 md:p-5 rounded-lg md:rounded-full transition-all flex items-center justify-center ${
                     input.trim() && !isLoading ? 'bg-indigo-600 text-white shadow-xl active:scale-90' : 'bg-white/5 text-white/5'
                   }`}
                 >
                   <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="4"><path d="m5 12 7-7 7 7"/><path d="M12 19V5"/></svg>
                 </button>
               </div>
-              <p className="text-[7px] md:text-[9px] text-white/20 text-center mt-2 uppercase tracking-[0.4em] font-black italic">NEXTGENLAB ENGINE – TÜM SİSTEMLER AKTİF</p>
+              <p className="text-[7px] md:text-[9px] text-white/10 text-center mt-2 uppercase tracking-[0.5em] font-black italic">ULTRA SPEED ACTIVE</p>
             </footer>
           )}
         </div>
